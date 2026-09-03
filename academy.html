@@ -84,6 +84,7 @@ body.noscroll{overflow:hidden}
 .fb-att-x{font-size:.8rem;color:var(--ink-3,#6b7280);text-decoration:underline}
 .fb-att-b{flex-basis:100%;margin-top:.4rem}
 .fb-att-b img{max-width:min(100%,620px);border-radius:8px;border:1px solid var(--line,#dcdfe6);cursor:zoom-in;display:block}
+#ibAdmin{text-decoration:none;display:inline-flex;align-items:center}
 .fb-send .sd-sub{font-size:.85rem;color:var(--ink-3);margin:-.4rem 0 .6rem}
 .fb-send .sd-warn{background:var(--amber-soft);color:var(--ink);border-radius:8px;padding:8px 12px;font-size:.88rem}
 #sdMsg{color:var(--green);font-weight:700}
@@ -2788,7 +2789,7 @@ SEL.forEach(function(sel){
 var TYPES=['Suggestion','Correction','Question','Screenshot'];
 var ALL=[], SHOTS={}, NAME=null, CANSAVE=(typeof claude==='undefined'), STORAGE_OK=true;
 try{NAME=localStorage.getItem('la-review-name')||null}catch(e){STORAGE_OK=false}
-var VERSION='r1';var VERSION_FULL='r1 · Railway · 4 Sep 2026';
+var VERSION='r2';var VERSION_FULL='r2 · Railway · 4 Sep 2026';
 function modal(html,onOpen){
   var w=document.createElement('div');w.className='fb-send';
   w.innerHTML='<div class="sd">'+html+'</div>';
@@ -3266,7 +3267,8 @@ function boot(){
   ob.innerHTML='&#128203; Review inbox <span class="n">0</span>';document.body.appendChild(ob);
   var ib=document.createElement('div');ib.id='fbInbox';
   ib.innerHTML='<div class="ib-top"><h3>&#128203; Review inbox</h3><span id="ibMode" style="font-size:.85rem;opacity:.75"></span><span class="ib-ver">build '+VERSION_FULL+'</span>'+
-    '<span class="sp"><button class="fb-btn ghost" id="ibSync" title="Fetch the latest comments from everyone">&#8635; Refresh</button>'+
+    '<span class="sp"><a class="fb-btn ghost" id="ibAdmin" href="/admin" hidden>&#128100; Reviewers</a>'+
+    '<button class="fb-btn ghost" id="ibSync" title="Fetch the latest comments from everyone">&#8635; Refresh</button>'+
     '<button class="fb-btn" id="ibSend" title="Check that every comment reached Amar, and get a backup copy if any did not">&#9989; Check delivery</button>'+
     '<button class="fb-btn ghost" id="ibCsv" title="Download your own comments as a spreadsheet — a personal backup copy">&#11015; Download my copy</button>'+
     '<button class="fb-btn ghost" id="ibWipe">&#128465; Clear all</button><button class="fb-btn" id="ibClose">Close</button>'+
@@ -3362,7 +3364,7 @@ function boot(){
     if(md)md.textContent=IS_OWNER?'every reviewer\u2019s comments, collected automatically'
                                  :'your comments, saved automatically as you write them';
     var mb=document.getElementById('ibMore');if(mb&&!IS_OWNER)mb.style.display='none';
-    var ad=document.getElementById('fbAdmin');if(ad&&IS_OWNER)ad.hidden=false;
+    var ad=document.getElementById('fbAdmin');if(ad&&IS_OWNER)ad.hidden=false;var ia=document.getElementById('ibAdmin');if(ia&&IS_OWNER)ia.hidden=false;
   }).catch(function(){});
   fetchAll();
   setTimeout(function(){flush()},1500);
