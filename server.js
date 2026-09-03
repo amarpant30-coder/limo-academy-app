@@ -57,21 +57,31 @@ async function initDb() {
     CREATE INDEX IF NOT EXISTS comments_user_idx ON comments(user_id);
   `);
 
-  /* First boot: make sure there is an owner account to log in with. */
+  /* Owner account. If ADMIN_PASS is set it is applied on every boot, so the
+     owner can always recover access by changing that variable in Railway.
+     Remove ADMIN_PASS once you are in and the password is managed in-app. */
+  const user = (process.env.ADMIN_USER || 'amar').toLowerCase().trim();
+  const envPass = process.env.ADMIN_PASS;
   const { rows } = await pool.query(`SELECT count(*)::int AS n FROM users WHERE role='owner'`);
+
   if (rows[0].n === 0) {
-    const user = (process.env.ADMIN_USER || 'amar').toLowerCase().trim();
-    const pass = process.env.ADMIN_PASS || crypto.randomBytes(6).toString('base64url');
+    const pass = envPass || crypto.randomBytes(6).toString('base64url');
     await pool.query(
       `INSERT INTO users (username,name,pass_hash,role,must_change) VALUES ($1,$2,$3,'owner',$4)
        ON CONFLICT (username) DO NOTHING`,
-      [user, 'Amar', bcrypt.hashSync(pass, 12), !process.env.ADMIN_PASS]
-    );
+      [user, 'Amar', bcrypt.hashSync(pass, 12), !envPass]);
     console.log('─'.repeat(58));
-    console.log('  Owner account ready');
-    console.log('  username: ' + user);
-    console.log('  password: ' + pass + (process.env.ADMIN_PASS ? ' (from ADMIN_PASS)' : '  ← change it after logging in'));
+    console.log('  Owner account created — username: ' + user);
+    if (!envPass) console.log('  one-time password: ' + pass + '   ← change it after signing in');
+    else console.log('  password: the ADMIN_PASS you set in Railway variables');
     console.log('─'.repeat(58));
+  } else if (envPass) {
+    await pool.query(
+      `UPDATE users SET pass_hash=$1, must_change=FALSE WHERE role='owner' AND username=$2`,
+      [bcrypt.hashSync(envPass, 12), user]);
+    console.log('Owner password set from ADMIN_PASS for "' + user + '".');
+  } else {
+    console.log('Owner account exists. Set ADMIN_PASS in Railway variables to reset its password.');
   }
 }
 
