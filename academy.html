@@ -2789,7 +2789,7 @@ SEL.forEach(function(sel){
 var TYPES=['Suggestion','Correction','Question','Screenshot'];
 var ALL=[], SHOTS={}, NAME=null, CANSAVE=(typeof claude==='undefined'), STORAGE_OK=true;
 try{NAME=localStorage.getItem('la-review-name')||null}catch(e){STORAGE_OK=false}
-var VERSION='r2';var VERSION_FULL='r2 · Railway · 4 Sep 2026';
+var VERSION='r3';var VERSION_FULL='r3 · Railway · 4 Sep 2026';
 function modal(html,onOpen){
   var w=document.createElement('div');w.className='fb-send';
   w.innerHTML='<div class="sd">'+html+'</div>';
@@ -2980,8 +2980,10 @@ var IS_OWNER=false;
 if(!NAME){try{NAME=localStorage.getItem('la-review-name')||null}catch(e){}}
 /* Turn a Drive share link into something an <img> can actually display. */
 function driveThumb(url){
-  var m=/\/d\/([^/]+)/.exec(String(url||''));
-  return m?'https://drive.google.com/thumbnail?id='+m[1]+'&sz=w1400':'';
+  var u=String(url||'');if(!u)return '';
+  var m=/\/d\/([^/]+)/.exec(u);
+  if(m)return 'https://drive.google.com/thumbnail?id='+m[1]+'&sz=w1400';
+  return u;   /* served by this app itself — /api/shot/<id> */
 }
 /* Everything anyone has submitted, straight from the collector. */
 function fetchAll(){

@@ -51,10 +51,14 @@ async function initDb() {
       topic      TEXT NOT NULL DEFAULT '',
       body       TEXT NOT NULL DEFAULT '',
       shot_url   TEXT NOT NULL DEFAULT '',
+      shot_data  TEXT NOT NULL DEFAULT '',
+      mirrored   BOOLEAN NOT NULL DEFAULT FALSE,
       done       BOOLEAN NOT NULL DEFAULT FALSE,
       created_at TIMESTAMPTZ NOT NULL DEFAULT now()
     );
     CREATE INDEX IF NOT EXISTS comments_user_idx ON comments(user_id);
+    ALTER TABLE comments ADD COLUMN IF NOT EXISTS shot_data TEXT NOT NULL DEFAULT '';
+    ALTER TABLE comments ADD COLUMN IF NOT EXISTS mirrored  BOOLEAN NOT NULL DEFAULT FALSE;
   `);
 
   /* Owner account. If ADMIN_PASS is set it is applied on every boot, so the
@@ -171,6 +175,10 @@ th{font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;color:#6b7280}
 .inline input[type=text]{width:150px;padding:6px 9px;font-size:.85rem}
 .check{display:flex;align-items:center;gap:8px;font-weight:400;font-size:.88rem;color:#4b5563;margin-top:12px}
 .check input{width:auto}
+.stat{background:#f3f4f7;border-radius:9px;padding:11px 14px;font-size:.9rem;margin:4px 0 18px;
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.stat .sp2{margin-left:auto;display:flex;gap:8px;align-items:center}
+a.btn{display:inline-block;text-decoration:none;line-height:1.6}
 code{user-select:all}
 a{color:#e8532b}
 code{background:#f3f4f7;padding:2px 6px;border-radius:5px;font-size:.88rem}
@@ -245,6 +253,10 @@ app.get('/admin', requireLogin, requireOwner, async (req, res) => {
   /* Flash messages live in the session, so a password never lands in the
      address bar or browser history. */
   const flash = req.session.flash; delete req.session.flash;
+  const stat = (await pool.query(
+    `SELECT count(*)::int AS total,
+            count(*) FILTER (WHERE mirrored)::int AS in_sheet,
+            count(*) FILTER (WHERE NOT mirrored)::int AS pending FROM comments`)).rows[0];
   const note = flash
     ? `<div class="${flash.bad ? 'err' : 'ok'}">${flash.html}</div>`
     : '';
@@ -279,6 +291,16 @@ app.get('/admin', requireLogin, requireOwner, async (req, res) => {
     <h1>Reviewers</h1>
     <p class="sub">Give each person a username and a password you choose, then send them both.
       <a href="/">Open the module</a> · <a href="/logout">Sign out</a></p>
+    <div class="stat">
+      <b>${stat.total}</b> comment${stat.total === 1 ? '' : 's'} stored ·
+      <b>${stat.in_sheet}</b> copied to the Google Sheet${stat.pending
+        ? ` · <b style="color:#b4232c">${stat.pending} still to copy</b>` : ''}
+      <span class="sp2">
+        <a class="mini btn" href="/admin/export.json">Download a backup</a>
+        <form method="post" action="/admin/retry-mirror" class="inline">
+          <button class="mini">Retry Sheet copy</button></form>
+      </span>
+    </div>
     ${note}
 
     <form method="post" action="/admin/create">
@@ -358,14 +380,16 @@ app.get('/api/me', requireLogin, (req, res) => {
    in the query — never in the browser. */
 app.get('/api/comments', requireLogin, async (req, res) => {
   const owner = req.session.role === 'owner';
-  const sql = `SELECT id,author,type,section,title,topic,body,shot_url,done,created_at
+  const sql = `SELECT id,author,type,section,title,topic,body,shot_url,done,created_at,
+                      (shot_data <> '') AS has_shot
                FROM comments ${owner ? '' : 'WHERE user_id=$1'} ORDER BY created_at`;
   const { rows } = await pool.query(sql, owner ? [] : [req.session.uid]);
   res.json({
     ok: true, owner,
     items: rows.map(r => ({
       id: r.id, name: r.author, type: r.type, section: r.section, title: r.title,
-      topic: r.topic, text: r.body, shotUrl: r.shot_url, done: r.done,
+      topic: r.topic, text: r.body,
+      shotUrl: r.shot_url || (r.has_shot ? '/api/shot/' + r.id : ''), done: r.done,
       ts: new Date(r.created_at).getTime()
     }))
   });
@@ -376,13 +400,16 @@ app.post('/api/comments', requireLogin, async (req, res) => {
   let saved = 0;
   for (const r of items) {
     if (!r || !r.id) continue;
+    const shot = typeof r._shot === 'string' && r._shot.startsWith('data:') ? r._shot : '';
     const { rowCount } = await pool.query(
-      `INSERT INTO comments (id,user_id,author,type,section,title,topic,body,shot_url)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ON CONFLICT (id) DO NOTHING`,
+      `INSERT INTO comments (id,user_id,author,type,section,title,topic,body,shot_url,shot_data)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,'',$9) ON CONFLICT (id) DO NOTHING`,
       [String(r.id), req.session.uid, req.session.name || '', r.type || 'Suggestion',
-       r.section || '', r.title || '', r.topic || '', r.text || '', '']);
+       r.section || '', r.title || '', r.topic || '', r.text || '', shot]);
     if (rowCount) { saved++; mirror(r, req.session); }
   }
+  /* Only reports success once the rows are committed, so a reviewer is never
+     told "sent" for something that is not stored. */
   res.json({ ok: true, saved });
 });
 
@@ -398,15 +425,86 @@ app.post('/api/done/:id', requireLogin, async (req, res) => {
    carries on working. Failures here never block a reviewer. */
 function mirror(rec, sess) {
   const url = process.env.SHEET_ENDPOINT;
-  if (!url) return;
+  if (!url) return Promise.resolve(false);
   const payload = JSON.stringify({ key: sess.name || 'reviewer', items: [Object.assign({}, rec, { name: sess.name })] });
-  fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: payload })
+  return fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: payload })
     .then(r => r.text())
-    .then(t => { try { const j = JSON.parse(t); if (j.shots && j.shots[rec.id])
-      pool.query('UPDATE comments SET shot_url=$1 WHERE id=$2', [j.shots[rec.id], rec.id]).catch(()=>{});
-    } catch (e) {} })
-    .catch(err => console.error('sheet mirror failed:', err.message));
+    .then(t => {
+      const j = JSON.parse(t);
+      if (!j.ok) throw new Error(j.error || 'sheet refused the row');
+      const shotUrl = (j.shots && j.shots[rec.id]) || '';
+      return pool.query('UPDATE comments SET mirrored=TRUE' + (shotUrl ? ', shot_url=$2' : '') + ' WHERE id=$1',
+        shotUrl ? [rec.id, shotUrl] : [rec.id]).then(() => true);
+    })
+    .catch(err => { console.error('sheet mirror failed for ' + rec.id + ':', err.message); return false; });
 }
+
+/* Anything the Sheet did not accept is retried until it lands. The comment is
+   already safe in our own database; this only keeps the Sheet complete. */
+async function retryMirrors() {
+  if (!process.env.SHEET_ENDPOINT) return;
+  try {
+    const { rows } = await pool.query(
+      `SELECT id,author,type,section,title,topic,body,shot_data
+         FROM comments WHERE mirrored=FALSE ORDER BY created_at LIMIT 25`);
+    for (const r of rows) {
+      await mirror({ id: r.id, type: r.type, section: r.section, title: r.title,
+                     topic: r.topic, text: r.body, _shot: r.shot_data || undefined },
+                   { name: r.author });
+    }
+    if (rows.length) console.log('retried ' + rows.length + ' unmirrored comment(s)');
+  } catch (err) { console.error('mirror retry failed:', err.message); }
+}
+setInterval(retryMirrors, 5 * 60 * 1000).unref();
+
+/* Screenshots are served from our own database, so they survive even if the
+   Google copy is missing. */
+app.get('/api/shot/:id', requireLogin, async (req, res) => {
+  const owner = req.session.role === 'owner';
+  const { rows } = await pool.query(
+    `SELECT shot_data FROM comments WHERE id=$1 ${owner ? '' : 'AND user_id=$2'}`,
+    owner ? [req.params.id] : [req.params.id, req.session.uid]);
+  const d = rows[0] && rows[0].shot_data;
+  if (!d) return res.status(404).send('no screenshot');
+  const m = /^data:([^;]+);base64,(.*)$/.exec(d);
+  if (!m) return res.status(404).send('no screenshot');
+  res.set('Content-Type', m[1]).set('Cache-Control', 'private, max-age=86400')
+     .send(Buffer.from(m[2], 'base64'));
+});
+
+/* Push any backlog to the Sheet immediately, rather than waiting for the timer. */
+app.post('/admin/retry-mirror', requireLogin, requireOwner, async (req, res) => {
+  await retryMirrors();
+  const { rows } = await pool.query(
+    `SELECT count(*) FILTER (WHERE NOT mirrored)::int AS pending FROM comments`);
+  req.session.flash = rows[0].pending
+    ? { bad: true, html: `${rows[0].pending} comment(s) still not in the Sheet — they are safe here and will keep retrying.` }
+    : { html: 'Every comment is in the Google Sheet.' };
+  res.redirect('/admin');
+});
+
+/* A one-click snapshot of everything, so you are never dependent on one system. */
+app.get('/admin/export.json', requireLogin, requireOwner, async (req, res) => {
+  const { rows } = await pool.query(
+    `SELECT c.id,c.author,c.type,c.section,c.title,c.topic,c.body,c.shot_url,
+            (c.shot_data <> '') AS has_screenshot, c.done, c.mirrored, c.created_at,
+            u.username
+       FROM comments c JOIN users u ON u.id=c.user_id ORDER BY c.created_at`);
+  res.set('Content-Disposition', 'attachment; filename="academy-comments-' +
+    new Date().toISOString().slice(0, 10) + '.json"');
+  res.json({ exported: new Date().toISOString(), count: rows.length, comments: rows });
+});
+
+/* Health check doubles as a delivery report. */
+app.get('/api/status', requireLogin, requireOwner, async (req, res) => {
+  const { rows } = await pool.query(
+    `SELECT count(*)::int AS total,
+            count(*) FILTER (WHERE mirrored)::int AS in_sheet,
+            count(*) FILTER (WHERE NOT mirrored)::int AS pending,
+            count(*) FILTER (WHERE shot_data <> '')::int AS with_screenshots
+       FROM comments`);
+  res.json({ ok: true, sheetConfigured: !!process.env.SHEET_ENDPOINT, ...rows[0] });
+});
 
 app.get('/healthz', (_req, res) => res.send('ok'));
 
