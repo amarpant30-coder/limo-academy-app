@@ -65,7 +65,7 @@ async function initDb() {
   const { rows } = await pool.query(`SELECT count(*)::int AS n FROM users WHERE role='owner'`);
 
   if (rows[0].n === 0) {
-    const pass = envPass || crypto.randomBytes(6).toString('base64url');
+    const pass = envPass || newPassword(10);
     await pool.query(
       `INSERT INTO users (username,name,pass_hash,role,must_change) VALUES ($1,$2,$3,'owner',$4)
        ON CONFLICT (username) DO NOTHING`,
@@ -114,6 +114,19 @@ function requireOwner(req, res, next) {
   if (req.session.role !== 'owner') return res.status(403).send('Not allowed');
   next();
 }
+/* Starting passwords are read off a screen and typed by hand, so leave out
+   every character pair that looks alike in common fonts: 0/O, 1/l/I, 5/S, 2/Z. */
+const PW_ALPHABET = 'ACDEFHJKLMNPQRTUVWXYZabcdefhijkmnprstuvwxyz347';
+function newPassword(len) {
+  const n = len || 10;
+  let out = '';
+  for (let i = 0; i < n; i++) {
+    out += PW_ALPHABET[crypto.randomInt(0, PW_ALPHABET.length)];
+    if (i === 3 || i === 7) out += '-';          // easier to read aloud
+  }
+  return out;
+}
+
 const esc = s => String(s == null ? '' : s)
   .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
   .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
@@ -254,7 +267,7 @@ app.get('/admin', requireLogin, requireOwner, async (req, res) => {
 app.post('/admin/create', requireLogin, requireOwner, async (req, res) => {
   const username = String(req.body.username || '').toLowerCase().replace(/[^a-z0-9._-]/g, '').slice(0, 40);
   if (!username) return res.redirect('/admin');
-  const pw = crypto.randomBytes(5).toString('base64url');
+  const pw = newPassword(10);
   try {
     await pool.query(
       `INSERT INTO users (username,name,pass_hash,role,must_change) VALUES ($1,$2,$3,'reviewer',TRUE)`,
@@ -266,7 +279,7 @@ app.post('/admin/create', requireLogin, requireOwner, async (req, res) => {
 });
 
 app.post('/admin/reset/:id', requireLogin, requireOwner, async (req, res) => {
-  const pw = crypto.randomBytes(5).toString('base64url');
+  const pw = newPassword(10);
   const { rows } = await pool.query(
     `UPDATE users SET pass_hash=$1, must_change=TRUE WHERE id=$2 AND role<>'owner' RETURNING username`,
     [bcrypt.hashSync(pw, 12), req.params.id]);
