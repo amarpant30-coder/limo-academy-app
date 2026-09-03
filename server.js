@@ -167,6 +167,11 @@ th{font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;color:#6b7280}
 .row button{width:auto;margin-top:0;padding:11px 18px}
 .mini{padding:6px 10px;font-size:.82rem;width:auto;margin:0;background:#eceef2;color:#1c2130}
 .mini:hover{background:#dfe2e8}
+.inline{display:inline-flex;gap:5px;align-items:center;margin:0 6px 4px 0}
+.inline input[type=text]{width:150px;padding:6px 9px;font-size:.85rem}
+.check{display:flex;align-items:center;gap:8px;font-weight:400;font-size:.88rem;color:#4b5563;margin-top:12px}
+.check input{width:auto}
+code{user-select:all}
 a{color:#e8532b}
 code{background:#f3f4f7;padding:2px 6px;border-radius:5px;font-size:.88rem}
 </style></head><body>${body}</body></html>`;
@@ -236,55 +241,107 @@ app.get('/admin', requireLogin, requireOwner, async (req, res) => {
     SELECT u.id,u.username,u.name,u.role,u.disabled,u.must_change,
            (SELECT count(*)::int FROM comments c WHERE c.user_id=u.id) AS comments
     FROM users u ORDER BY u.role DESC, u.username`);
-  const msg = req.query.new
-    ? `<div class="ok">Created <b>${esc(req.query.new)}</b> with starting password <code>${esc(req.query.pw)}</code> — send it to them; they will set their own on first sign-in.</div>`
-    : (req.query.reset
-      ? `<div class="ok">New starting password for <b>${esc(req.query.reset)}</b>: <code>${esc(req.query.pw)}</code></div>` : '');
-  const list = rows.map(u => `<tr>
-      <td><b>${esc(u.username)}</b>${u.role==='owner'?' · owner':''}${u.disabled?' · disabled':''}</td>
+
+  /* Flash messages live in the session, so a password never lands in the
+     address bar or browser history. */
+  const flash = req.session.flash; delete req.session.flash;
+  const note = flash
+    ? `<div class="${flash.bad ? 'err' : 'ok'}">${flash.html}</div>`
+    : '';
+
+  const list = rows.map(u => {
+    if (u.role === 'owner') {
+      return `<tr><td><b>${esc(u.username)}</b> · owner</td><td>${esc(u.name)}</td>
+        <td>${u.comments}</td><td>active</td>
+        <td><a href="/password">change my password</a></td></tr>`;
+    }
+    return `<tr>
+      <td><b>${esc(u.username)}</b>${u.disabled ? ' · disabled' : ''}</td>
       <td>${esc(u.name)}</td>
       <td>${u.comments}</td>
-      <td>${u.must_change ? 'not signed in yet' : 'active'}</td>
-      <td>${u.role==='owner' ? '' : `
-        <form method="post" action="/admin/reset/${u.id}" style="display:inline"><button class="mini">Reset password</button></form>
-        <form method="post" action="/admin/toggle/${u.id}" style="display:inline"><button class="mini">${u.disabled?'Enable':'Disable'}</button></form>`}</td>
-    </tr>`).join('');
+      <td>${u.must_change ? 'has not signed in yet' : 'active'}</td>
+      <td>
+        <form method="post" action="/admin/setpass/${u.id}" class="inline">
+          <input type="text" name="password" placeholder="new password" autocomplete="off">
+          <button class="mini">Set</button>
+        </form>
+        <form method="post" action="/admin/setpass/${u.id}" class="inline">
+          <input type="hidden" name="generate" value="1">
+          <button class="mini">Generate</button>
+        </form>
+        <form method="post" action="/admin/toggle/${u.id}" class="inline">
+          <button class="mini">${u.disabled ? 'Enable' : 'Disable'}</button>
+        </form>
+      </td></tr>`;
+  }).join('');
+
   res.send(shell('Reviewers — Reservations Academy', `<div class="card wide">
     <h1>Reviewers</h1>
-    <p class="sub">Add a reviewer, hand them the username and starting password, and they set their own on first sign-in.
+    <p class="sub">Give each person a username and a password you choose, then send them both.
       <a href="/">Open the module</a> · <a href="/logout">Sign out</a></p>
-    ${msg}
-    <form method="post" action="/admin/create" class="row">
-      <div><label for="nu">Username</label><input id="nu" name="username" placeholder="priya" required autocapitalize="none"></div>
-      <div><label for="nn">Full name</label><input id="nn" name="name" placeholder="Priya Nair"></div>
-      <button type="submit">Add reviewer</button>
+    ${note}
+
+    <form method="post" action="/admin/create">
+      <div class="row">
+        <div><label for="nu">Username</label>
+          <input id="nu" name="username" placeholder="priya" required autocapitalize="none" autocomplete="off"></div>
+        <div><label for="nn">Full name</label>
+          <input id="nn" name="name" placeholder="Priya Nair" autocomplete="off"></div>
+        <div><label for="np">Password</label>
+          <input id="np" name="password" placeholder="leave blank to generate one" autocomplete="off"></div>
+        <button type="submit">Add reviewer</button>
+      </div>
+      <label class="check"><input type="checkbox" name="force" value="1">
+        Make them choose their own password on first sign-in</label>
     </form>
-    <table><thead><tr><th>Username</th><th>Name</th><th>Comments</th><th>Status</th><th></th></tr></thead>
+
+    <table><thead><tr><th>Username</th><th>Name</th><th>Comments</th><th>Status</th><th>Password</th></tr></thead>
     <tbody>${list}</tbody></table>
+    <p class="sub" style="margin-top:16px">Passwords must be at least 8 characters. Type one in the
+      <b>Password</b> box and press <b>Set</b>, or press <b>Generate</b> for a random one.</p>
   </div>`));
 });
 
 app.post('/admin/create', requireLogin, requireOwner, async (req, res) => {
   const username = String(req.body.username || '').toLowerCase().replace(/[^a-z0-9._-]/g, '').slice(0, 40);
-  if (!username) return res.redirect('/admin');
-  const pw = newPassword(10);
+  if (!username) { req.session.flash = { bad: true, html: 'Please give the reviewer a username.' }; return res.redirect('/admin'); }
+
+  const typed = String(req.body.password || '').trim();
+  if (typed && typed.length < 8) {
+    req.session.flash = { bad: true, html: 'That password is too short — use at least 8 characters.' };
+    return res.redirect('/admin');
+  }
+  const pw    = typed || newPassword(10);
+  const force = typed ? !!req.body.force : true;   // generated ones must always be changed
+
   try {
     await pool.query(
-      `INSERT INTO users (username,name,pass_hash,role,must_change) VALUES ($1,$2,$3,'reviewer',TRUE)`,
-      [username, String(req.body.name || '').slice(0, 80), bcrypt.hashSync(pw, 12)]);
-    res.redirect('/admin?new=' + encodeURIComponent(username) + '&pw=' + encodeURIComponent(pw));
+      `INSERT INTO users (username,name,pass_hash,role,must_change) VALUES ($1,$2,$3,'reviewer',$4)`,
+      [username, String(req.body.name || '').slice(0, 80), bcrypt.hashSync(pw, 12), force]);
+    req.session.flash = { html: `Created <b>${esc(username)}</b> with password <code>${esc(pw)}</code>` +
+      (force ? ' — they will choose their own on first sign-in.' : ' — send it to them.') };
   } catch (err) {
-    res.redirect('/admin');
+    req.session.flash = { bad: true, html: `Could not create <b>${esc(username)}</b> — that username may already exist.` };
   }
+  res.redirect('/admin');
 });
 
-app.post('/admin/reset/:id', requireLogin, requireOwner, async (req, res) => {
-  const pw = newPassword(10);
+app.post('/admin/setpass/:id', requireLogin, requireOwner, async (req, res) => {
+  const generate = !!req.body.generate;
+  const typed = String(req.body.password || '').trim();
+  if (!generate && typed.length < 8) {
+    req.session.flash = { bad: true, html: 'That password is too short — use at least 8 characters.' };
+    return res.redirect('/admin');
+  }
+  const pw = generate ? newPassword(10) : typed;
   const { rows } = await pool.query(
-    `UPDATE users SET pass_hash=$1, must_change=TRUE WHERE id=$2 AND role<>'owner' RETURNING username`,
-    [bcrypt.hashSync(pw, 12), req.params.id]);
-  if (!rows[0]) return res.redirect('/admin');
-  res.redirect('/admin?reset=' + encodeURIComponent(rows[0].username) + '&pw=' + encodeURIComponent(pw));
+    `UPDATE users SET pass_hash=$1, must_change=$2 WHERE id=$3 AND role<>'owner' RETURNING username`,
+    [bcrypt.hashSync(pw, 12), generate, req.params.id]);
+  req.session.flash = rows[0]
+    ? { html: `Password for <b>${esc(rows[0].username)}</b> is now <code>${esc(pw)}</code>` +
+        (generate ? ' — they will choose their own on first sign-in.' : ' — send it to them.') }
+    : { bad: true, html: 'That reviewer no longer exists.' };
+  res.redirect('/admin');
 });
 
 app.post('/admin/toggle/:id', requireLogin, requireOwner, async (req, res) => {
