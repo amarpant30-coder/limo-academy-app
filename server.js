@@ -67,6 +67,10 @@ async function initDb() {
       resolved   BOOLEAN NOT NULL DEFAULT FALSE,
       created_at TIMESTAMPTZ NOT NULL DEFAULT now()
     );
+    CREATE TABLE IF NOT EXISTS app_meta (
+      key   TEXT PRIMARY KEY,
+      value TEXT NOT NULL DEFAULT ''
+    );
     ALTER TABLE comments ADD COLUMN IF NOT EXISTS shot_data TEXT NOT NULL DEFAULT '';
     ALTER TABLE comments ADD COLUMN IF NOT EXISTS mirrored  BOOLEAN NOT NULL DEFAULT FALSE;
   `);
@@ -387,6 +391,9 @@ app.get('/admin', requireLogin, requireOwner, async (req, res) => {
         <a class="mini btn" href="/admin/export.json">Download a backup</a>
         <form method="post" action="/admin/retry-mirror" class="inline">
           <button class="mini">Retry Sheet copy</button></form>
+        <form method="post" action="/admin/comments/clear" class="inline"
+              onsubmit="return confirm('Delete all ' + ${stat.total} + ' stored comments and start a fresh review round?\n\nRows already written to the Google Sheet are not touched. Download a backup first if you want one.')">
+          <button class="mini danger">Clear all comments</button></form>
       </span>
     </div>
     ${note}
@@ -504,8 +511,15 @@ app.get('/api/comments', requireLogin, async (req, res) => {
                       (shot_data <> '') AS has_shot
                FROM comments ${owner ? '' : 'WHERE user_id=$1'} ORDER BY created_at`;
   const { rows } = await pool.query(sql, owner ? [] : [req.session.uid]);
+  /* If the owner has reset the board, tell the browser when — it uses this to
+     drop its own local copies of comments written before that moment. */
+  let resetAt = 0;
+  try {
+    const m = await pool.query(`SELECT value FROM app_meta WHERE key='comments_reset_at'`);
+    if (m.rows[0]) resetAt = Number(m.rows[0].value) || 0;
+  } catch (e) { /* table may not exist yet on an old deploy */ }
   res.json({
-    ok: true, owner,
+    ok: true, owner, resetAt,
     items: rows.map(r => ({
       id: r.id, name: r.author, type: r.type, section: r.section, title: r.title,
       topic: r.topic, text: r.body,
@@ -630,6 +644,22 @@ app.post('/api/issue', requireLogin, async (req, res) => {
        String(i.detail || '').slice(0, 500), String(i.commentId || '').slice(0, 60)]);
   }
   res.json({ ok: true });
+});
+
+/* Wipe every comment and remember when, so reviewers' browsers can drop their
+   own local copies of the same rows and everyone genuinely starts from zero.
+   Deliberately owner-only, and deliberately not reachable from the module. */
+app.post('/admin/comments/clear', requireLogin, requireOwner, async (req, res) => {
+  const { rows } = await pool.query('SELECT count(*)::int AS n FROM comments');
+  const n = rows[0].n;
+  await pool.query('DELETE FROM comments');
+  await pool.query(
+    `INSERT INTO app_meta (key,value) VALUES ('comments_reset_at',$1)
+     ON CONFLICT (key) DO UPDATE SET value=EXCLUDED.value`, [String(Date.now())]);
+  req.session.flash = {
+    html: `Cleared <b>${n}</b> comment${n === 1 ? '' : 's'}. Reviewers' browsers will drop their own `
+        + `copies of them next time they open the module. Rows already in the Google Sheet stay there.` };
+  res.redirect('/admin');
 });
 
 app.post('/admin/issues/clear', requireLogin, requireOwner, async (req, res) => {

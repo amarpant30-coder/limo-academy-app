@@ -3778,6 +3778,10 @@ function fetchAll(){
     .then(function(t){
       var j=null;try{j=JSON.parse(t)}catch(e){return false}
       if(!j||!j.ok||!j.items)return false;
+      /* Amar cleared the inbox to start a fresh round: drop this browser's own
+         copies of anything written before that moment, so an old comment can
+         never reappear from a reviewer's cache. Anything newer is untouched. */
+      if(j.resetAt)pruneBefore(j.resetAt);
       REMOTE=j.items.filter(function(x){return x&&(x.text||x.shotUrl)}).map(function(x){
         return {id:x.id||('r'+x.ts),topic:x.topic||'',title:x.title||'',section:x.section||'',
                 type:x.type||'Suggestion',text:x.text||'',name:x.name||'Anonymous',
@@ -3786,6 +3790,20 @@ function fetchAll(){
       ALL=localAll();render();
       return true;
     }).catch(function(){return false});
+}
+/* Forget locally-held comments older than the last inbox reset. The database is
+   the source of truth; this only clears the browser's own cache of it. */
+function pruneBefore(cut){
+  cut=Number(cut)||0;if(!cut)return;
+  var changed=false;
+  ['la-review-local','la-review-imported'].forEach(function(k){
+    var a=lsGet(k);if(!Array.isArray(a)||!a.length)return;
+    var keep=a.filter(function(x){return (Number(x&&x.ts)||0)>=cut});
+    if(keep.length===a.length)return;
+    lsSet(k,keep);changed=true;
+    if(k==='la-review-local')MEM_MINE=keep;else MEM_IMP=keep;
+  });
+  if(changed){SHOTS={};MEM_MINE.concat(MEM_IMP).forEach(function(r){if(r._shot)SHOTS[r.id]=r._shot});ALL=localAll()}
 }
 /* Retry anything that never made it (offline earlier, blocked network, older comments). */
 function flush(){
