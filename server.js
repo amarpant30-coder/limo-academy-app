@@ -116,13 +116,46 @@ app.use(session({
 }));
 
 /* -------------------------------------------------------------- middleware */
+/* A signed-in reviewer is re-checked against the users table, so that
+   disabling or deleting someone ends their access straight away instead of
+   waiting for their cookie to expire. The answer is cached briefly so this
+   costs one small query per reviewer every 20 seconds, not one per request. */
+const seatCache = new Map();                    // uid -> { until, ok, role, name }
+function seatState(uid) {
+  const hit = seatCache.get(uid);
+  if (hit && hit.until > Date.now()) return Promise.resolve(hit);
+  return pool.query('SELECT role, name, username, disabled FROM users WHERE id=$1', [uid])
+    .then(({ rows }) => {
+      const u = rows[0];
+      const st = { until: Date.now() + 20000, ok: !!u && !u.disabled,
+                   role: u ? u.role : null, name: u ? (u.name || u.username) : null };
+      seatCache.set(uid, st);
+      return st;
+    })
+    .catch(() => ({ until: 0, ok: true, role: null, name: null }));  // never lock people out on a DB blip
+}
+function forgetSeat(uid) { seatCache.delete(Number(uid)); }
+
 function requireLogin(req, res, next) {
   if (!req.session.uid) {
     return req.path.startsWith('/api/')
       ? res.status(401).json({ ok: false, error: 'not signed in' })
       : res.redirect('/login');
   }
-  next();
+  seatState(req.session.uid).then(st => {
+    if (!st.ok) {
+      return req.session.destroy(() => {
+        if (req.path.startsWith('/api/')) {
+          res.status(401).json({ ok: false, error: 'this account is no longer active' });
+        } else {
+          res.redirect('/login?e=2');
+        }
+      });
+    }
+    if (st.role) req.session.role = st.role;    // a role change takes effect too
+    if (st.name) req.session.name = st.name;
+    next();
+  });
 }
 function requireOwner(req, res, next) {
   if (req.session.role !== 'owner') return res.status(403).send('Not allowed');
@@ -203,7 +236,9 @@ code{background:#f3f4f7;padding:2px 6px;border-radius:5px;font-size:.88rem}
 
 app.get('/login', (req, res) => {
   if (req.session.uid) return res.redirect('/');
-  const bad = req.query.e ? '<div class="err">That username or password was not right.</div>' : '';
+  const bad = req.query.e === '2'
+    ? '<div class="err">That account is no longer active. Ask Amar to set you up again.</div>'
+    : req.query.e ? '<div class="err">That username or password was not right.</div>' : '';
   res.send(shell('Sign in — Reservations Academy', `<form class="card" method="post" action="/login">
     <h1>Reservations Academy</h1>
     <p class="sub">Sign in to review the training module.</p>
@@ -392,6 +427,7 @@ app.post('/admin/setpass/:id', requireLogin, requireOwner, async (req, res) => {
   const { rows } = await pool.query(
     `UPDATE users SET pass_hash=$1, must_change=$2 WHERE id=$3 AND role<>'owner' RETURNING username`,
     [bcrypt.hashSync(pw, 12), generate, req.params.id]);
+  forgetSeat(req.params.id);
   req.session.flash = rows[0]
     ? { html: `Password for <b>${esc(rows[0].username)}</b> is now <code>${esc(pw)}</code>` +
         (generate ? ' — they will choose their own on first sign-in.' : ' — send it to them.') }
@@ -401,6 +437,7 @@ app.post('/admin/setpass/:id', requireLogin, requireOwner, async (req, res) => {
 
 app.post('/admin/toggle/:id', requireLogin, requireOwner, async (req, res) => {
   await pool.query(`UPDATE users SET disabled = NOT disabled WHERE id=$1 AND role<>'owner'`, [req.params.id]);
+  forgetSeat(req.params.id);
   res.redirect('/admin');
 });
 
@@ -413,6 +450,7 @@ app.post('/admin/delete/:id', requireLogin, requireOwner, async (req, res) => {
        FROM users u WHERE id=$1 AND role<>'owner'`, [req.params.id]);
   if (!rows[0]) { req.session.flash = { bad: true, html: 'That reviewer no longer exists.' }; return res.redirect('/admin'); }
   await pool.query(`DELETE FROM users WHERE id=$1 AND role<>'owner'`, [req.params.id]);
+  forgetSeat(req.params.id);
   req.session.flash = { html: `Deleted <b>${esc(rows[0].username)}</b> and their ${rows[0].n} comment(s) from this app.` };
   res.redirect('/admin');
 });
