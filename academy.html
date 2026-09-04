@@ -2789,7 +2789,7 @@ SEL.forEach(function(sel){
 var TYPES=['Suggestion','Correction','Question','Screenshot'];
 var ALL=[], SHOTS={}, NAME=null, CANSAVE=(typeof claude==='undefined'), STORAGE_OK=true;
 try{NAME=localStorage.getItem('la-review-name')||null}catch(e){STORAGE_OK=false}
-var VERSION='r3';var VERSION_FULL='r3 · Railway · 4 Sep 2026';
+var VERSION='r4';var VERSION_FULL='r4 · Railway · 4 Sep 2026';
 function modal(html,onOpen){
   var w=document.createElement('div');w.className='fb-send';
   w.innerHTML='<div class="sd">'+html+'</div>';
@@ -3010,7 +3010,9 @@ function flush(){
   var a=mine(),pend=a.filter(function(r){return !r.sent});
   if(!pend.length)return Promise.resolve(0);
   return Promise.all(pend.map(function(r){
-    return push(r).then(function(ok){if(ok)markSent(r.id,true);return ok})
+    return push(r).then(function(ok){
+      if(ok){markSent(r.id,true);reportIssue('recovered','A comment that failed earlier has now been delivered.',r.id)}
+      return ok})
   })).then(function(res){
     return res.filter(Boolean).length;
   });
@@ -3036,13 +3038,34 @@ function markSent(id,ok){
   MEM_MINE.forEach(function(x){if(x.id===id)x.sent=!!ok});
   ALL=localAll();render();
 }
+/* Problem reports wait in this browser until the connection is back. */
+function reportIssue(kind,detail,commentId){
+  try{
+    var q=lsGet('la-review-issues')||[];
+    q.push({kind:kind,detail:String(detail||'').slice(0,300),commentId:commentId||'',at:Date.now()});
+    lsSet('la-review-issues',q.slice(-20));
+  }catch(e){}
+  flushIssues();
+}
+function flushIssues(){
+  var q=lsGet('la-review-issues');
+  if(!Array.isArray(q)||!q.length)return Promise.resolve();
+  return fetch('/api/issue',{method:'POST',credentials:'same-origin',
+      headers:{'Content-Type':'application/json'},body:JSON.stringify({items:q})})
+    .then(function(r){return r.json()})
+    .then(function(j){if(j&&j.ok)lsSet('la-review-issues',[])})
+    .catch(function(){});
+}
 function submit(rec,shot){
   if(shot)rec.shot=rec.id;
   var a=mine();if(shot){SHOTS[rec.id]=shot;rec._shot=shot}
   rec.sent=false;a.push(rec);localSave(a);ALL=localAll();render();
   return push(rec).then(function(ok){
     markSent(rec.id,ok);
-    if(!ok)toast('Saved here, but could not reach Amar \u2014 open Review inbox and press Check delivery','bad');
+    if(!ok){
+      reportIssue('send-failed','Send did not reach the server; kept in this browser and will retry.',rec.id);
+      toast('Not sent yet \u2014 kept safely in this browser and will retry automatically. Keep this tab open if you can.','bad');
+    }
     return ok;
   });
 }
@@ -3369,7 +3392,7 @@ function boot(){
     var ad=document.getElementById('fbAdmin');if(ad&&IS_OWNER)ad.hidden=false;var ia=document.getElementById('ibAdmin');if(ia&&IS_OWNER)ia.hidden=false;
   }).catch(function(){});
   fetchAll();
-  setTimeout(function(){flush()},1500);
+  setTimeout(function(){flush();flushIssues()},1500);
 
   offline();
   afterCaps();

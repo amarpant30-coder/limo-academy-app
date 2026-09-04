@@ -57,6 +57,16 @@ async function initDb() {
       created_at TIMESTAMPTZ NOT NULL DEFAULT now()
     );
     CREATE INDEX IF NOT EXISTS comments_user_idx ON comments(user_id);
+    CREATE TABLE IF NOT EXISTS issues (
+      id         SERIAL PRIMARY KEY,
+      user_id    INTEGER REFERENCES users(id) ON DELETE SET NULL,
+      username   TEXT NOT NULL DEFAULT '',
+      kind       TEXT NOT NULL DEFAULT '',
+      detail     TEXT NOT NULL DEFAULT '',
+      comment_id TEXT NOT NULL DEFAULT '',
+      resolved   BOOLEAN NOT NULL DEFAULT FALSE,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
     ALTER TABLE comments ADD COLUMN IF NOT EXISTS shot_data TEXT NOT NULL DEFAULT '';
     ALTER TABLE comments ADD COLUMN IF NOT EXISTS mirrored  BOOLEAN NOT NULL DEFAULT FALSE;
   `);
@@ -178,6 +188,10 @@ th{font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;color:#6b7280}
 .stat{background:#f3f4f7;border-radius:9px;padding:11px 14px;font-size:.9rem;margin:4px 0 18px;
   display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .stat .sp2{margin-left:auto;display:flex;gap:8px;align-items:center}
+.issues{background:#fdf3e7;border:1px solid #f0d8b8;border-radius:9px;padding:12px 14px;margin:0 0 18px;font-size:.9rem}
+.issues ul{margin:8px 0 0;padding-left:18px}
+.issues li{margin-bottom:6px}
+.issues .when{color:#8a6636;font-size:.82rem}
 a.btn{display:inline-block;text-decoration:none;line-height:1.6}
 code{user-select:all}
 a{color:#e8532b}
@@ -257,6 +271,9 @@ app.get('/admin', requireLogin, requireOwner, async (req, res) => {
     `SELECT count(*)::int AS total,
             count(*) FILTER (WHERE mirrored)::int AS in_sheet,
             count(*) FILTER (WHERE NOT mirrored)::int AS pending FROM comments`)).rows[0];
+  const issues = (await pool.query(
+    `SELECT username,kind,detail,comment_id,created_at FROM issues
+      WHERE resolved=FALSE ORDER BY created_at DESC LIMIT 20`)).rows;
   const note = flash
     ? `<div class="${flash.bad ? 'err' : 'ok'}">${flash.html}</div>`
     : '';
@@ -302,6 +319,16 @@ app.get('/admin', requireLogin, requireOwner, async (req, res) => {
       </span>
     </div>
     ${note}
+
+    ${issues.length ? `<div class="issues">
+      <b>&#9888; ${issues.length} problem${issues.length === 1 ? '' : 's'} reported by reviewers</b>
+      <form method="post" action="/admin/issues/clear" class="inline" style="float:right">
+        <button class="mini">Mark as looked at</button></form>
+      <ul>${issues.map(i => `<li><b>${esc(i.username)}</b> — ${esc(i.kind)}
+        ${i.comment_id ? `(comment <code>${esc(i.comment_id)}</code>)` : ''}
+        <span class="when">${new Date(i.created_at).toLocaleString()}</span>
+        ${i.detail ? `<br><span class="when">${esc(i.detail)}</span>` : ''}</li>`).join('')}</ul>
+    </div>` : ''}
 
     <form method="post" action="/admin/create">
       <div class="row">
@@ -472,6 +499,26 @@ app.get('/api/shot/:id', requireLogin, async (req, res) => {
      .send(Buffer.from(m[2], 'base64'));
 });
 
+/* The page reports any send it could not complete. Reports are queued in the
+   reviewer's browser and posted as soon as the connection is back, so a failure
+   that happened offline still reaches you. */
+app.post('/api/issue', requireLogin, async (req, res) => {
+  const items = Array.isArray(req.body.items) ? req.body.items : [req.body];
+  for (const i of items.slice(0, 20)) {
+    await pool.query(
+      `INSERT INTO issues (user_id,username,kind,detail,comment_id) VALUES ($1,$2,$3,$4,$5)`,
+      [req.session.uid, req.session.name || '', String(i.kind || 'send-failed').slice(0, 40),
+       String(i.detail || '').slice(0, 500), String(i.commentId || '').slice(0, 60)]);
+  }
+  res.json({ ok: true });
+});
+
+app.post('/admin/issues/clear', requireLogin, requireOwner, async (req, res) => {
+  await pool.query('UPDATE issues SET resolved=TRUE WHERE resolved=FALSE');
+  req.session.flash = { html: 'Marked all reported problems as looked at.' };
+  res.redirect('/admin');
+});
+
 /* Push any backlog to the Sheet immediately, rather than waiting for the timer. */
 app.post('/admin/retry-mirror', requireLogin, requireOwner, async (req, res) => {
   await retryMirrors();
@@ -503,7 +550,8 @@ app.get('/api/status', requireLogin, requireOwner, async (req, res) => {
             count(*) FILTER (WHERE NOT mirrored)::int AS pending,
             count(*) FILTER (WHERE shot_data <> '')::int AS with_screenshots
        FROM comments`);
-  res.json({ ok: true, sheetConfigured: !!process.env.SHEET_ENDPOINT, ...rows[0] });
+  const iss = await pool.query(`SELECT count(*)::int AS open_issues FROM issues WHERE resolved=FALSE`);
+  res.json({ ok: true, sheetConfigured: !!process.env.SHEET_ENDPOINT, ...rows[0], ...iss.rows[0] });
 });
 
 app.get('/healthz', (_req, res) => res.send('ok'));
