@@ -240,7 +240,26 @@ a.btn{display:inline-block;text-decoration:none;line-height:1.6}
 code{user-select:all}
 a{color:#e8532b}
 code{background:#f3f4f7;padding:2px 6px;border-radius:5px;font-size:.88rem}
-</style></head><body>${body}</body></html>`;
+.card{position:relative}
+.card-x{position:absolute;top:14px;right:14px;width:34px;height:34px;border-radius:50%;
+  border:1px solid #e2e5ea;background:#fff;color:#6b7280;text-decoration:none;
+  display:grid;place-items:center;font-size:1.3rem;line-height:1;
+  transition:transform .18s ease,color .2s,border-color .2s,background .2s}
+.card-x:hover{transform:rotate(90deg);color:#a32b1c;border-color:#e8532b;background:#fdecea}
+.card-x:focus-visible{outline:2px solid #e8532b;outline-offset:2px}
+@media (max-width:600px){.card-x{top:10px;right:10px}}
+</style></head><body>${body}
+<script>
+/* Escape closes the page the same way the ✕ does */
+document.addEventListener('keydown',function(e){
+  if(e.key!=='Escape')return;
+  var t=e.target, tag=t&&t.tagName;
+  if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT')return;   // don't hijack a field
+  var x=document.querySelector('.card-x');
+  if(x)location.href=x.getAttribute('href');
+});
+</script>
+</body></html>`;
 }
 
 app.get('/login', (req, res) => {
@@ -355,6 +374,8 @@ app.get('/admin', requireLogin, requireOwner, async (req, res) => {
   }).join('');
 
   res.send(shell('Reviewers — Reservations Academy', `<div class="card wide">
+    <a class="card-x" href="/" title="Close and go back to the module"
+       aria-label="Close and go back to the module">&times;</a>
     <h1>Reviewers</h1>
     <p class="sub">Give each person a username and a password you choose, then send them both.
       <a href="/">Open the module</a> · <a href="/logout">Sign out</a></p>
