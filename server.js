@@ -97,6 +97,11 @@ async function initDb() {
   } else {
     console.log('Owner account exists. Set ADMIN_PASS in Railway variables to reset its password.');
   }
+
+  if (!process.env.SESSION_SECRET) {
+    console.warn('SESSION_SECRET is not set — every restart will sign all reviewers out. '
+               + 'Add it in Railway > Variables (any long random string).');
+  }
 }
 
 /* ----------------------------------------------------------------- session */
@@ -387,6 +392,12 @@ app.get('/admin', requireLogin, requireOwner, async (req, res) => {
 
     <table><thead><tr><th>Username</th><th>Name</th><th>Comments</th><th>Status</th><th>Password</th></tr></thead>
     <tbody>${list}</tbody></table>
+    ${process.env.SESSION_SECRET ? '' : `<p style="margin-top:16px;background:#fdecea;color:#a32b1c;
+      padding:10px 12px;border-radius:8px;font-size:.9rem">
+      <b>Everyone is signed out whenever this app restarts.</b> That happens because
+      <code>SESSION_SECRET</code> is not set in Railway, so the app invents a new one each time it boots and
+      every existing sign-in stops being recognised. Add that variable in Railway &rsaquo; Variables
+      (any long random string) and this stops happening.</p>`}
     <p class="sub" style="margin-top:16px">Passwords must be at least 8 characters. Type one in the
       <b>Password</b> box and press <b>Set</b>, or press <b>Generate</b> for a random one.</p>
   </div>`));
@@ -634,7 +645,8 @@ app.get('/api/status', requireLogin, requireOwner, async (req, res) => {
             count(*) FILTER (WHERE shot_data <> '')::int AS with_screenshots
        FROM comments`);
   const iss = await pool.query(`SELECT count(*)::int AS open_issues FROM issues WHERE resolved=FALSE`);
-  res.json({ ok: true, sheetConfigured: !!process.env.SHEET_ENDPOINT, ...rows[0], ...iss.rows[0] });
+  res.json({ ok: true, sheetConfigured: !!process.env.SHEET_ENDPOINT,
+             sessionSecretSet: !!process.env.SESSION_SECRET, ...rows[0], ...iss.rows[0] });
 });
 
 app.get('/healthz', (_req, res) => res.send('ok'));
