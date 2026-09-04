@@ -112,6 +112,10 @@ app.use(session({
   secret: process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex'),
   resave: false,
   saveUninitialized: false,
+  /* The month below runs from the reviewer's last visit, not from the day they
+     first signed in, so someone who takes three weeks over the module is not
+     signed out halfway through it. */
+  rolling: true,
   cookie: {
     httpOnly: true,
     sameSite: 'lax',
