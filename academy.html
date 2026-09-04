@@ -1045,6 +1045,75 @@ body.rv-hide .rv-anchor{display:none!important}
 .rv-anchor.rv-inside .rv-chip{top:auto;bottom:-15px}
 .rv-anchor.rv-clip .rv-chip{bottom:8px}
 
+/* ==========================================================================
+   Sticky review toolbar
+   ========================================================================== */
+:root{--rvbar-h:46px}
+#rvBar{position:sticky;top:0;z-index:60;display:flex;align-items:center;gap:12px;
+  min-height:var(--rvbar-h);padding:0 16px 0 20px;
+  background:linear-gradient(180deg,#20263a,var(--dark));
+  border-bottom:1px solid rgba(255,255,255,.10);color:#fff;
+  box-shadow:0 6px 20px -18px rgba(0,0,0,.9)}
+#rvBar .rb-l{display:flex;align-items:center;gap:10px;min-width:0}
+#rvBar .rb-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex:none;
+  box-shadow:0 0 0 0 rgba(228,86,42,.7);animation:uxPulse 2.6s infinite}
+#rvBar .rb-brand{font-family:var(--display);font-size:1rem;letter-spacing:.05em;
+  text-transform:uppercase;font-weight:600;white-space:nowrap}
+#rvBar .rb-sec{font-size:.84rem;color:var(--dark-ink-2);white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis;padding-left:10px;border-left:1px solid rgba(255,255,255,.16)}
+#rvBar .rb-r{margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:nowrap}
+#rvBar a.rb-btn:hover{color:#fff}
+#rvBar .rb-btn{display:inline-flex;align-items:center;gap:.45em;white-space:nowrap;
+  font:700 .84rem var(--body);color:#E7EAF2;text-decoration:none;cursor:pointer;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);
+  border-radius:99px;padding:7px 14px;
+  transition:transform .15s var(--ease),background .2s,border-color .2s,box-shadow .2s}
+#rvBar .rb-btn:hover{transform:translateY(-1px);background:rgba(255,255,255,.15);
+  border-color:rgba(255,255,255,.28)}
+#rvBar .rb-btn:active{transform:translateY(0) scale(.97)}
+#rvBar .rb-btn.rb-off{opacity:.62}
+#rvBar .rb-primary{background:var(--grad);border-color:transparent;color:#fff;
+  box-shadow:0 5px 16px -6px rgba(228,86,42,.8)}
+#rvBar .rb-primary:hover{background:var(--grad);box-shadow:0 9px 22px -6px rgba(228,86,42,.9)}
+#rvBar .rb-n{font-family:var(--mono);font-size:.74rem;background:rgba(0,0,0,.3);
+  border-radius:99px;padding:1px 8px}
+#rvBar .rb-n.zero{opacity:.55}
+#rvBar .rb-who{font-size:.84rem;color:var(--dark-ink-2);white-space:nowrap;
+  padding-left:10px;border-left:1px solid rgba(255,255,255,.16)}
+#rvBar .rb-who:empty{display:none}
+#rvBar .rb-out{font-size:.8rem;color:var(--dark-ink-2);text-decoration:underline;white-space:nowrap}
+#rvBar .rb-out:hover{color:#fff}
+#rvBar .rb-i{font-size:.95em;line-height:1}
+
+/* the sticky bars stack instead of overlapping */
+@media (max-width:900px){.topbar{top:var(--rvbar-h)}}
+.lesson-nav{top:var(--rvbar-h)}
+@media (max-width:900px){.lesson-nav{top:calc(var(--rvbar-h) + 46px)}}
+body.has-rvbar .sec,body.has-rvbar .lesson,body.has-rvbar section.finish{
+  scroll-margin-top:calc(var(--rvbar-h) + 12px)}
+@media (max-width:900px){body.has-rvbar .sec,body.has-rvbar .lesson,body.has-rvbar section.finish{
+  scroll-margin-top:calc(var(--rvbar-h) + 54px)}}
+/* the toolbar replaces the floating button */
+body.has-rvbar #fbOpen{display:none}
+@media print{#rvBar{display:none!important}}
+
+@media (max-width:1100px){
+  #rvBar .rb-sec{display:none}
+  #rvBar #rbChips .rb-x{display:none}
+}
+@media (max-width:820px){
+  :root{--rvbar-h:44px}
+  #rvBar{padding:0 10px 0 12px;gap:8px}
+  #rvBar .rb-brand{font-size:.9rem}
+  #rvBar .rb-who{display:none}
+  #rvBar .rb-btn{padding:7px 11px}
+  #rvBar #rbAdmin .rb-x,#rvBar #rbInbox .rb-x{display:none}
+  #rvBar .rb-out{font-size:.75rem}
+}
+
+/* a forgiving hit area around the chip so the pointer never falls through */
+.rv-chip::before{content:"";position:absolute;inset:-12px -14px;border-radius:99px}
+
 /* anchors must clear the sticky bars when jumped to */
 .sec,.lesson,section.finish{scroll-margin-top:18px}
 @media (max-width:900px){.sec,.lesson,section.finish{scroll-margin-top:60px}}
@@ -3426,6 +3495,8 @@ function render(){
   try{rvCounts()}catch(e){}
   var n=ALL.filter(function(x){return !x.done}).length;
   var ob=document.getElementById('fbOpen');if(ob)ob.querySelector('.n').textContent=n;
+  var rn=document.querySelector('#rbInbox .rb-n');
+  if(rn){rn.textContent=n;rn.classList.toggle('zero',!n)}
   if(document.getElementById('fbInbox').classList.contains('on'))renderInbox();
 }
 
@@ -3576,8 +3647,15 @@ function saveFile(name,text,mime){
    through exactly the same submit() path as the lesson-level box, so
    nothing about delivery, retry or storage changes.
    ===================================================================== */
+/* pass 1 — the specific blocks: cards, panels, animations, tables      */
 var RV_SEL = '.prose,.callout,.plain,.board,.tw,.login-demo,.anat,.qz,.life,.gloss,.tile,'
-           + '.lede > div,#explorer,#pathfinder,#reach,#sim,#dboard,#resolver,#dispatchSim,#board';
+           + '.lede > div,.flow,.math,.chain,.demos,.la-panel,.reach,.pf,.mini,'
+           + '#explorer,#pathfinder,#reach,#sim,#dboard,#resolver,#dispatchSim,#board';
+/* pass 2 — anything still uncovered: loose paragraphs, lists, headings  */
+var RV_SEL2 = 'p,ul,ol,table,blockquote,h3,h4,.lede,.lesson-head,.sec-head';
+/* never chipped                                                         */
+var RV_SKIP = '.fb,.rv-anchor,.rv-dlg,.lesson-nav,.subnav,.lesson-pager,.anat-side,'
+            + '.tour-h,.fb-send,.ib-top,.ib-filters,#fbBanner,#uxProg';
 var RV_ICON = {Suggestion:'\u{1F4A1}',Correction:'✏️',Question:'❓',Screenshot:'\u{1F4F7}'};
 var RV_BLOCKS = [];
 
@@ -3623,18 +3701,36 @@ function rvChipEl(){
             + '<span class="rv-t">Review</span></button>';
   return a;
 }
+/* Sections that are split into lessons still have their own intro block —
+   heading, lede, sometimes a demo — sitting outside every lesson. Those get
+   review chips too, under a pseudo-topic for the section itself. */
+function rvIntroTopics(){
+  var out=[];
+  document.querySelectorAll('section.sec').forEach(function(sec){
+    if(!sec.querySelector('.lesson'))return;
+    var name=(sec.querySelector('.sec-head h2')||{}).textContent||sec.id;
+    out.push({id:sec.id,title:name,section:name,host:sec.querySelector('.wrap')||sec,intro:true});
+  });
+  return out;
+}
 function mountChips(){
-  topics().forEach(function(t){
+  topics().concat(rvIntroTopics()).forEach(function(t){
     var host=t.host, seen=[], used={};
-    var found;
-    try{ found=[].slice.call(host.querySelectorAll(RV_SEL)); }catch(e){ return }
+    var found=[];
+    try{
+      found=[].slice.call(host.querySelectorAll(RV_SEL))
+             .concat([].slice.call(host.querySelectorAll(RV_SEL2)));
+    }catch(e){ return }
     found.forEach(function(el){
-      if(el.closest('.fb')||el.closest('.rv-dlg')||el.closest('.anat-side'))return;
-      for(var i=0;i<seen.length;i++){ if(seen[i].contains(el)) return }
+      if(el._rvDone)return;
+      if(el.closest(RV_SKIP))return;
+      if(el.classList.contains('rv-anchor')||el.classList.contains('rv-chip'))return;
+      if(t.intro&&el.closest('.lesson'))return;
+      for(var i=0;i<seen.length;i++){ if(seen[i]===el||seen[i].contains(el)) return }
       /* skip near-empty decoration */
       var hasMedia=el.querySelector('img,svg,canvas,table,input,button');
-      if(!hasMedia && (el.textContent||'').trim().length<40)return;
-      seen.push(el);
+      if(!hasMedia && (el.textContent||'').replace(/\s+/g,' ').trim().length<20)return;
+      seen.push(el);el._rvDone=true;
 
       var label=rvLabel(el);
       used[label]=(used[label]||0)+1;
@@ -3660,15 +3756,23 @@ function mountChips(){
                section:t.section,lesson:t.title};
       RV_BLOCKS.push(rec);
 
-      var show=function(){anchor.classList.add('on')},
-          hide=function(){anchor.classList.remove('on')};
-      el.addEventListener('mouseenter',show);
-      el.addEventListener('mouseleave',hide);
-      anchor.addEventListener('mouseenter',show);
-      anchor.addEventListener('mouseleave',hide);
+      /* The chip sits on the block's edge, so the pointer leaves the block
+         on its way to the chip. Hiding is therefore delayed, and cancelled
+         the moment the pointer reaches the chip itself. */
+      var chip=anchor.querySelector('.rv-chip'), hideT=null;
+      function show(){ if(hideT){clearTimeout(hideT);hideT=null} anchor.classList.add('on') }
+      function hide(){ if(hideT)clearTimeout(hideT);
+                       hideT=setTimeout(function(){anchor.classList.remove('on');hideT=null},320) }
+      el.addEventListener('pointerenter',show);
+      el.addEventListener('pointerleave',hide);
+      el.addEventListener('pointermove',show);
+      chip.addEventListener('pointerenter',show);
+      chip.addEventListener('pointerleave',hide);
+      chip.addEventListener('focus',show);
+      chip.addEventListener('blur',hide);
       el.addEventListener('focusin',show);
-      anchor.querySelector('.rv-chip').addEventListener('click',function(e){
-        e.preventDefault();e.stopPropagation();rvOpen(rec);
+      chip.addEventListener('click',function(e){
+        e.preventDefault();e.stopPropagation();show();rvOpen(rec);
       });
     });
   });
@@ -3776,6 +3880,69 @@ function rvOpen(b){
   ta.addEventListener('keydown',function(e){
     if((e.metaKey||e.ctrlKey)&&e.key==='Enter')send.click();
   });
+}
+
+
+/* ---- the sticky review toolbar ---- */
+function rvToolbar(){
+  var main=document.querySelector('.main')||document.body;
+  var bar=document.createElement('div');bar.id='rvBar';
+  bar.innerHTML=
+    '<div class="rb-l"><span class="rb-dot"></span>'+
+      '<b class="rb-brand">Review mode</b>'+
+      '<span class="rb-sec" id="rbSec"></span></div>'+
+    '<div class="rb-r">'+
+      '<button type="button" class="rb-btn" id="rbChips" title="Show or hide the small Review buttons on each block">'+
+        '<span class="rb-i">\u{1F4AC}</span><span class="rb-x">Review buttons: on</span></button>'+
+      '<a class="rb-btn" id="rbAdmin" href="/admin" hidden><span class="rb-i">\u{1F464}</span><span class="rb-x">Reviewers</span></a>'+
+      '<button type="button" class="rb-btn rb-primary" id="rbInbox">'+
+        '<span class="rb-i">\u{1F4CB}</span><span class="rb-x">Review inbox</span><span class="rb-n">0</span></button>'+
+      '<span class="rb-who" id="rbWho"></span>'+
+      '<a class="rb-out" href="/logout" title="Sign out">Sign out</a>'+
+    '</div>';
+  main.insertBefore(bar,main.firstChild);
+
+  /* show which section you are in */
+  var secEl=bar.querySelector('#rbSec');
+  function syncSec(){
+    var a=document.querySelector('#nav a.active, #topnav a.active');
+    if(!a){secEl.textContent='';return}
+    var n=a.querySelector('.n'), spans=a.querySelectorAll('span');
+    var name='';
+    for(var i=0;i<spans.length;i++){
+      if(spans[i]===n||spans[i].classList.contains('chk')||spans[i].classList.contains('cv'))continue;
+      name=spans[i].textContent;break;
+    }
+    if(!name)name=a.textContent;
+    secEl.textContent=(n?n.textContent.trim()+' · ':'')+name.replace(/\s+/g,' ').trim();
+  }
+  syncSec();
+  var nav=document.getElementById('nav');
+  if(nav&&window.MutationObserver){
+    new MutationObserver(syncSec).observe(nav,{subtree:true,attributes:true,attributeFilter:['class']});
+  }
+
+  /* chips on / off */
+  var cb=bar.querySelector('#rbChips');
+  function paintChips(){
+    var off=document.body.classList.contains('rv-hide');
+    cb.querySelector('.rb-x').textContent='Review buttons: '+(off?'off':'on');
+    cb.classList.toggle('rb-off',off);
+  }
+  try{if(localStorage.getItem('la-review-chips')==='off')document.body.classList.add('rv-hide')}catch(e){}
+  paintChips();
+  cb.addEventListener('click',function(){
+    var off=document.body.classList.toggle('rv-hide');
+    try{localStorage.setItem('la-review-chips',off?'off':'on')}catch(e){}
+    paintChips();
+    toast(off?'Review buttons hidden — turn them back on here any time.'
+             :'Review buttons are back on.');
+  });
+
+  bar.querySelector('#rbInbox').addEventListener('click',function(){
+    var ob=document.getElementById('fbOpen');if(ob)ob.click();
+  });
+  document.body.classList.add('has-rvbar');
 }
 
 /* ---- scroll progress rail ---- */
@@ -3907,8 +4074,9 @@ function boot(){
   ib.querySelector('#ibCsv').addEventListener('click',function(){saveFile('academy-review-feedback.csv',exportCsv(),'text/csv')});
   var ban=document.createElement('div');ban.id='fbBanner';
   ban.innerHTML='<b>&#128172; You are reviewing this module.</b> Hover any paragraph, card or animation and a small <b>&#128172; Review</b> button appears at its edge — click it and say what should change, right where you spotted it. Every lesson also has a <b>Review this topic</b> box at the bottom for anything broader. '+
-    'Each comment is sent straight to Amar as soon as you press <b>Send</b> &mdash; nothing else to do when you are finished. You can review everything you have written in the <b>&#128203; Review inbox</b> at the bottom right.'+
-    '<div class="who-line">Reviewing as <b id="fbWho">'+esc(NAME||'not set yet')+'</b><button type="button" class="fb-btn ghost" id="fbSetName">Set your name</button><button type="button" class="fb-btn ghost" id="fbChips" title="Show or hide the small Review buttons on each block">&#128172; Hide review buttons</button><span class="ver">build '+VERSION_FULL+'</span> <a href="/admin" id="fbAdmin" style="margin-left:.6rem" hidden>Reviewers</a> <a href="/logout" style="margin-left:.6rem">Sign out</a></div>'+
+    'Everything you write is in <b>&#128203; Review inbox</b> in the bar at the top of the page, and it reaches Amar the moment you press Send. '+
+    
+    '<div class="who-line">Reviewing as <b id="fbWho">'+esc(NAME||'not set yet')+'</b><button type="button" class="fb-btn ghost" id="fbSetName">Set your name</button><a href="/admin" id="fbAdmin" hidden>Reviewers</a></div>'+
     '<span class="x">&times;</span>';
   var host=document.querySelector('.main')||document.body;var hero=host.querySelector('.hero');
   if(hero&&hero.nextSibling)host.insertBefore(ban,hero.nextSibling);else host.insertBefore(ban,host.firstChild);
@@ -3922,22 +4090,9 @@ function boot(){
     ban.querySelector('.who-line').appendChild(w);
   }
   ban.querySelector('#fbSetName').addEventListener('click',function(){askName()});
-  (function(){
-    var cb=ban.querySelector('#fbChips');
-    function paint(){
-      var off=document.body.classList.contains('rv-hide');
-      cb.innerHTML=(off?'&#128172; Show review buttons':'&#128172; Hide review buttons');
-    }
-    try{if(localStorage.getItem('la-review-chips')==='off')document.body.classList.add('rv-hide')}catch(e){}
-    paint();
-    cb.addEventListener('click',function(){
-      var off=document.body.classList.toggle('rv-hide');
-      try{localStorage.setItem('la-review-chips',off?'off':'on')}catch(e){}
-      paint();
-    });
-  })();
   ban.querySelector('.x').addEventListener('click',function(){ban.remove();try{localStorage.setItem('la-review-banner','off')}catch(e){}});
   try{if(localStorage.getItem('la-review-banner')==='off')ban.remove()}catch(e){}
+  try{rvToolbar()}catch(e){console.warn('review toolbar',e)}
   try{mountChips()}catch(e){console.warn('review chips',e)}
   try{rvProgress()}catch(e){}
   try{rvStabilise()}catch(e){}
@@ -3953,6 +4108,8 @@ function boot(){
                                  :'your comments, saved automatically as you write them';
     var mb=document.getElementById('ibMore');if(mb&&!IS_OWNER)mb.style.display='none';
     var ad=document.getElementById('fbAdmin');if(ad&&IS_OWNER)ad.hidden=false;var ia=document.getElementById('ibAdmin');if(ia&&IS_OWNER)ia.hidden=false;
+    var ra=document.getElementById('rbAdmin');if(ra&&IS_OWNER)ra.hidden=false;
+    var rw=document.getElementById('rbWho');if(rw)rw.textContent=NAME||'';
   }).catch(function(){});
   fetchAll();
   setTimeout(function(){flush();flushIssues()},1500);
