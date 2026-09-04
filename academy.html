@@ -2347,7 +2347,7 @@ body.has-rvbar #fbOpen{display:none}
 <tr><td>Settle, Receivables, Payables</td><td>Whether unsettled trips can be invoiced · alert after N hours for done-but-unsettled trips · driver hours from trip duration or garage times</td></tr>
 <tr><td>Driver Anywhere</td><td>Which app rate fields map to which line items · wait-time grace periods (airport vs non-airport) · when drivers must collect payment</td></tr>
 </table></div>
-</div>
+
 <h4 class="tour-h">Tour &middot; Where company preferences live, group by group</h4>
 <div class="anat" id="tourPrefs" data-tour="prefs"><div class="anat-shot lam">
   <div class="lam-tabs rt" id="cpTabs"><span class="on">Company Settings</span><span>Company Resources</span><span>Rate Management</span><span>List Management</span></div>
@@ -2356,7 +2356,7 @@ body.has-rvbar #fbOpen{display:none}
   <div class="lam-stored" id="cpGroups"><b>The seven groups of preferences</b><div class="lam-rrow" id="cp1"><span class="k">1</span><span>General Settings</span></div><div class="lam-rrow" id="cp2"><span class="k">2</span><span>Forms and Report Settings</span></div><div class="lam-rrow" id="cp3"><span class="k">3</span><span>Default Greeting Sign Settings</span></div><div class="lam-rrow" id="cp4"><span class="k">4</span><span>Accounts, Calendar and Quotes Settings</span></div><div class="lam-rrow" id="cp5"><span class="k st">5</span><span>Reservations Settings</span></div><div class="lam-rrow" id="cp6"><span class="k">6</span><span>Settle, Receivables and Payables Settings</span></div><div class="lam-rrow" id="cp7"><span class="k">7</span><span>Driver Anywhere Settings</span></div></div>
   <div class="lam-side" id="cpDetail"><b>Pick a group</b><div class="lam-mini" id="cpBody"><i>My Office &rsaquo; Company Settings &rsaquo; Company Preferences</i></div></div>
 </div></div></div>
-
+</div>
 <div class="lesson" id="s6-2" data-title="6.2 System users: giving colleagues access"><div class="lesson-head"><span class="eyebrow">Lesson 2 of 10</span><h3>6.2 System users: giving colleagues access</h3></div>
 <div class="plain"><b>In plain words</b> — Every person who logs in needs their own user. The company's administrator creates it; the person then gets an email to set a password. Sharing logins is not allowed — every change in the system is stamped with the user who made it.</div>
 <div class="flow">
@@ -2399,6 +2399,8 @@ body.has-rvbar #fbOpen{display:none}
 </div>
 
 
+
+<div class="la-shot"><div class="lax"><div class="lax-tabs2"><span class="on">Company Settings</span><span>Company Resources</span><span>Rate Management</span><span>List Management</span><span>Custom Forms</span></div><div class="lax-2"><div class="lax-panel"><b>Service Types</b><div class="lax-lst" id="v63list"><i class="sel" data-k="0">From Airport (AIRA)</i><i data-k="1">To Airport (AIRD)</i><i data-k="2">Point-to-Point (PTP)</i><i data-k="3">Hourly / As Directed (HRLY)</i><i data-k="4">Airport Shuttle (SHTL)</i><i data-k="5">Wedding Charter (WED)</i></div><div class="lax-btns"><span class="lax-btn wide">EDIT SERVICE TYPE</span></div></div><div class="lax-panel"><b>Service Type Setup</b><div class="lax-fs"><span class="lg">Identity</span><div class="lax-rows c3"><div class="lax-f"><label>Code</label><div class="lax-ctl" id="v63code">AIRA</div></div><div class="lax-f"><label>Internal Name</label><div class="lax-ctl" id="v63name">From Airport</div></div><div class="lax-f"><label>Status</label><div class="lax-ctl sel">ACTIVE</div></div></div><div class="lax-f" style="margin-top:7px"><label>Custom Label (what the customer sees online)</label><div class="lax-ctl" id="v63lbl">Airport arrival — we track your flight</div></div></div><div class="lax-fs"><span class="lg">How the price is worked out</span><div class="lax-rows c2"><div class="lax-f" id="v63pt"><label>Pricing Type</label><div class="lax-ctl sel">Fixed-or-Distance</div></div><div class="lax-f"><label>Rate Matrix</label><div class="lax-ctl sel">Default</div></div></div><div class="lax-f" style="margin-top:7px"><label>Associated Vehicle Types</label><div class="lax-ctl sel" id="v63veh">Sedan Towncar, Sports Utility Vehicle, Sprinter</div></div><div style="display:flex;gap:14px;margin-top:8px;font-size:.68rem"><span class="lax-chk on"><i></i>Visible in Online Reservations</span><span class="lax-chk on" id="v63def"><i></i>This is the company&rsquo;s <b>airport arrival</b> type</span></div></div><div class="lax-cta">UPDATE SERVICE TYPE</div></div></div></div><div class="cap"><b>A service type is a product, and it carries its own pricing rule.</b> The three fields that matter are <b>Pricing Type</b> (how the money is worked out), <b>Rate Matrix</b> (which price list to read) and <b>Associated Vehicle Types</b> (what the customer may choose). Get those wrong and the trip either prices at zero or offers a motor coach for an airport transfer.</div></div>
 </div>
 <div class="lesson" id="s6-4" data-title="6.4 Vehicle types and the fleet"><div class="lesson-head"><span class="eyebrow">Lesson 4 of 10</span><h3>6.4 Vehicle types and the fleet</h3></div>
 <div class="plain"><b>In plain words</b> — A <strong>vehicle type</strong> is a category on the menu ("SUV", "Sedan", "Sprinter"). The <strong>fleet</strong> is the list of real cars with plate numbers. Prices are attached to the <em>type</em>, never to the individual car — three different SUVs under the "SUV" type all cost the customer the same.</div>
@@ -3317,6 +3319,41 @@ function rate65(k){
   if('IntersectionObserver' in window){
     new IntersectionObserver(function(e){e[0].isIntersecting?play():stop()},{threshold:.3}).observe(host);
   } else play();
+
+/* 6.3 — pick a service type, watch the pricing rule change with it */
+(function(){
+  var list=$('v63list'); if(!list)return;
+  var SET=[
+    {c:'AIRA',n:'From Airport',   l:'Airport arrival — we track your flight',      p:'Fixed-or-Distance', v:'Sedan Towncar, Sports Utility Vehicle, Sprinter', d:'airport arrival'},
+    {c:'AIRD',n:'To Airport',     l:'Airport departure — book 2 hours ahead',      p:'Fixed-or-Distance', v:'Sedan Towncar, Sports Utility Vehicle, Sprinter', d:'airport departure'},
+    {c:'PTP', n:'Point-to-Point', l:'Car and driver, address to address',          p:'Fixed',             v:'Sedan Towncar, Sports Utility Vehicle',           d:'point-to-point'},
+    {c:'HRLY',n:'Hourly / As Directed', l:'By the hour, wherever you need to go',  p:'Hourly',            v:'Sedan Towncar, Sports Utility Vehicle, Limo, Sprinter', d:'hourly'},
+    {c:'SHTL',n:'Airport Shuttle',l:'Shared shuttle — priced per passenger',       p:'Per passenger',     v:'Sprinter, Minibus',                               d:'—'},
+    {c:'WED', n:'Wedding Charter',l:'Your day, your car, as long as you need it',  p:'Hourly',            v:'Limo, Sedan Towncar',                             d:'—'}
+  ];
+  var items=[].slice.call(list.querySelectorAll('i')),i=0,timer=null;
+  function paint(k){
+    i=k;var s=SET[k];
+    items.forEach(function(e,n){e.className=(n===k?'sel':'')});
+    $('v63code').textContent=s.c; $('v63name').textContent=s.n; $('v63lbl').textContent=s.l;
+    $('v63pt').querySelector('.lax-ctl').textContent=s.p;
+    $('v63veh').textContent=s.v;
+    var d=$('v63def');
+    d.innerHTML= s.d==='—'
+      ? '<i></i>Not one of the four default types'
+      : '<i></i>This is the company&rsquo;s <b>'+s.d+'</b> type';
+    d.classList.toggle('on', s.d!=='—');
+  }
+  items.forEach(function(e,n){e.style.cursor='pointer';
+    e.addEventListener('click',function(){stop();paint(n)})});
+  function stop(){if(timer){clearInterval(timer);timer=null}}
+  function play(){stop();timer=setInterval(function(){paint((i+1)%SET.length)},2600)}
+  paint(0);
+  if('IntersectionObserver' in window){
+    new IntersectionObserver(function(e){e[0].isIntersecting?play():stop()},{threshold:.3}).observe(list);
+  } else play();
+})();
+
 })();
 
 /* 6.9 — a tour over the preferences, each one tied to what it changes */
