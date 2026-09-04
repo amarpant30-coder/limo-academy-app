@@ -181,6 +181,8 @@ th{font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;color:#6b7280}
 .row button{width:auto;margin-top:0;padding:11px 18px}
 .mini{padding:6px 10px;font-size:.82rem;width:auto;margin:0;background:#eceef2;color:#1c2130}
 .mini:hover{background:#dfe2e8}
+.mini.danger{background:#fdecea;color:#a32b1c}
+.mini.danger:hover{background:#f9d9d5}
 .inline{display:inline-flex;gap:5px;align-items:center;margin:0 6px 4px 0}
 .inline input[type=text]{width:150px;padding:6px 9px;font-size:.85rem}
 .check{display:flex;align-items:center;gap:8px;font-weight:400;font-size:.88rem;color:#4b5563;margin-top:12px}
@@ -301,6 +303,10 @@ app.get('/admin', requireLogin, requireOwner, async (req, res) => {
         <form method="post" action="/admin/toggle/${u.id}" class="inline">
           <button class="mini">${u.disabled ? 'Enable' : 'Disable'}</button>
         </form>
+        <form method="post" action="/admin/delete/${u.id}" class="inline"
+              onsubmit="return confirm('Delete ${esc(u.username)} and their ${u.comments} comment(s) from this app? Rows already in the Google Sheet are not affected.')">
+          <button class="mini danger">Delete</button>
+        </form>
       </td></tr>`;
   }).join('');
 
@@ -395,6 +401,19 @@ app.post('/admin/setpass/:id', requireLogin, requireOwner, async (req, res) => {
 
 app.post('/admin/toggle/:id', requireLogin, requireOwner, async (req, res) => {
   await pool.query(`UPDATE users SET disabled = NOT disabled WHERE id=$1 AND role<>'owner'`, [req.params.id]);
+  res.redirect('/admin');
+});
+
+/* Removes a reviewer AND everything they wrote. Deliberately separate from
+   Disable, which keeps their comments. Rows already copied to the Google Sheet
+   stay there — this only clears our own database. */
+app.post('/admin/delete/:id', requireLogin, requireOwner, async (req, res) => {
+  const { rows } = await pool.query(
+    `SELECT username,(SELECT count(*)::int FROM comments c WHERE c.user_id=u.id) AS n
+       FROM users u WHERE id=$1 AND role<>'owner'`, [req.params.id]);
+  if (!rows[0]) { req.session.flash = { bad: true, html: 'That reviewer no longer exists.' }; return res.redirect('/admin'); }
+  await pool.query(`DELETE FROM users WHERE id=$1 AND role<>'owner'`, [req.params.id]);
+  req.session.flash = { html: `Deleted <b>${esc(rows[0].username)}</b> and their ${rows[0].n} comment(s) from this app.` };
   res.redirect('/admin');
 });
 
