@@ -1201,6 +1201,201 @@ body.has-rvbar #fbOpen{display:none}
 .mini{contain:strict}
 .board .msg:empty{display:none}
 
+
+/* ==========================================================================
+   Limo Anywhere screen recreations (r6)
+   Hand-built HTML/CSS mock-ups of the real screens, drawn from the live demo
+   account. No customer data — every name, address and figure is invented.
+   ========================================================================== */
+.lax{background:#fff;color:#1C2130;font-size:.8rem;line-height:1.35;text-align:left}
+.lax *{box-sizing:border-box}
+.lax-top{background:#111;color:#fff;display:flex;align-items:center;gap:10px;padding:6px 10px;font-size:.72rem}
+.lax-top .lg{font-family:var(--display);font-weight:700;letter-spacing:.06em;font-size:.82rem}
+.lax-top .sp{flex:1}
+.lax-top i{font-style:normal;border-radius:3px;padding:2px 7px;font-weight:700}
+.lax-top i.r{background:#E4562A}.lax-top i.d{background:#444}
+.lax-top .fd{background:#fff;border-radius:2px;width:90px;height:15px;display:inline-block}
+.lax-mods{display:flex;gap:2px;background:#1e1e1e;padding:5px 8px;overflow:hidden}
+.lax-mods span{color:#ccc;font-size:.63rem;padding:3px 7px;border-bottom:2px solid transparent;white-space:nowrap}
+.lax-mods span.on{color:#fff;border-bottom-color:#E4562A}
+.lax-tabs2{display:flex;gap:3px;background:#f0efec;padding:7px 8px 0;border-bottom:1px solid #c9c6c0;align-items:flex-end;flex-wrap:wrap}
+.lax-tabs2 span{background:#e2e0dc;border:1px solid #bbb;border-bottom:none;border-radius:5px 5px 0 0;
+  padding:5px 13px;font-weight:700;color:#555;font-size:.74rem;white-space:nowrap}
+.lax-tabs2 span.on{background:#fff;color:#1C2130}
+.lax-tabs2 .lnk{background:none;border:none;color:#1a5fb4;text-decoration:underline;font-weight:400;padding:5px 6px}
+.lax-tabs2 .rt{margin-left:auto;display:flex;gap:6px;align-items:center}
+.lax-tabs2 .rt em{font-style:normal;background:#eceae6;border:1px solid #c9c6c0;border-radius:3px;padding:3px 8px;font-size:.7rem}
+
+.lax-bar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:7px 10px;background:#fff;border-bottom:1px solid #d8d5d0;font-size:.72rem}
+.lax-date{display:flex;align-items:center;gap:4px}
+.lax-date b{background:#E4562A;color:#fff;border-radius:3px;padding:1px 6px;font-size:.7rem}
+.lax-date .d{border:1px solid #9a9a9a;border-radius:2px;padding:2px 8px;background:#fff;font-family:var(--mono);font-size:.7rem}
+.lax-chks{display:grid;grid-template-columns:repeat(3,auto);gap:1px 12px}
+.lax-chk{display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+.lax-chk i{width:11px;height:11px;border:1px solid #777;border-radius:2px;background:#fff;display:inline-block;position:relative;flex:none}
+.lax-chk.on i{background:#2C6FB5;border-color:#2C6FB5}
+.lax-chk.on i::after{content:"✓";position:absolute;inset:0;color:#fff;font-size:8px;line-height:11px;text-align:center}
+.lax-srch{border:1px solid #9a9a9a;border-radius:2px;background:#fff;width:120px;height:19px}
+.lax-go{background:#E4562A;color:#fff;border-radius:3px;padding:2px 7px;font-weight:700;font-size:.68rem}
+
+/* dispatch grid */
+.lax-scroll{overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch}
+.lax-grid{width:100%;border-collapse:collapse;font-size:.7rem;table-layout:fixed}
+@media (max-width:700px){.lax-grid{min-width:600px}.lax-cal{min-width:520px}.lax-gantt{min-width:520px}}
+.lax-grid th{background:#eceae6;border:1px solid #c9c6c0;padding:3px 5px;text-align:left;font-weight:700;
+  font-family:var(--body);text-transform:none;letter-spacing:0;font-size:.68rem;color:#333;white-space:nowrap}
+.lax-grid th::after{content:" ⇅";opacity:.4;font-size:.6rem}
+.lax-grid td{border:1px solid #d8d5d0;padding:3px 5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lax-grid tr.s-car td{background:#F4A08A}
+.lax-grid tr.s-asg td{background:#9FE3EF}
+.lax-grid tr.s-done td{background:#fff}
+.lax-grid tr.s-way td{background:#FBE08A}
+.lax-grid tr.s-uns td{background:#EDEFF3}
+.lax-grid tr.hl td{outline:2px solid var(--accent);outline-offset:-2px}
+
+/* generic two-pane list + form screens */
+.lax-2{display:grid;grid-template-columns:minmax(150px,1fr) minmax(0,2fr);gap:10px;padding:10px;background:#f6f5f3}
+@media (max-width:640px){.lax-2{grid-template-columns:1fr}}
+.lax-panel{background:#fff;border:1px solid #c9c6c0;border-radius:3px;padding:8px 10px}
+.lax-panel > b{display:block;font-size:.75rem;margin-bottom:6px;color:#1a5fb4}
+.lax-lst{border:1px solid #9a9a9a;background:#fff;border-radius:2px;padding:4px 0;max-height:150px;overflow:hidden}
+.lax-lst i{display:block;font-style:normal;padding:2px 8px;font-size:.72rem;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
+.lax-lst i.sel{background:#2C6FB5;color:#fff}
+.lax-lst i.off{color:#C0392B}
+.lax-btns{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+.lax-btn{background:#eceae6;border:1px solid #a9a6a0;border-radius:3px;padding:4px 10px;font-size:.7rem;
+  font-weight:700;color:#333;text-align:center;flex:1}
+.lax-btn.blue{background:#DCEBF7;border-color:#9CC4E4}
+.lax-btn.wide{flex-basis:100%}
+.lax-fs{border:1px solid #c9c6c0;border-radius:3px;padding:8px 10px 10px;margin-bottom:8px;position:relative}
+.lax-fs > legend,.lax-fs > .lg{color:#1a5fb4;font-size:.72rem;font-weight:700;display:block;margin-bottom:6px}
+.lax-fs > .lg.red{color:#C0392B}
+.lax-rows{display:grid;gap:7px}
+.lax-rows.c2{grid-template-columns:1fr 1fr}
+.lax-rows.c3{grid-template-columns:repeat(3,1fr)}
+@media (max-width:640px){.lax-rows.c2,.lax-rows.c3{grid-template-columns:1fr}}
+.lax-f label{display:block;font-size:.66rem;color:#444;margin-bottom:2px}
+.lax-f label b{color:#C0392B}
+.lax-ctl{border:1px solid #9a9a9a;border-radius:2px;background:#fff;min-height:22px;padding:3px 6px;
+  font-size:.7rem;display:flex;align-items:center;gap:6px}
+.lax-ctl.sel::after{content:"▾";margin-left:auto;color:#666}
+.lax-ctl.req{background:#FFFBE0;border-color:#c9b96a}
+.lax-ctl.tall{min-height:52px;align-items:flex-start}
+.lax-note{background:#FFFBE0;border:1px solid #e2d79a;border-radius:3px;padding:7px 9px;font-size:.68rem;
+  color:#4a4326;margin:0 0 8px}
+.lax-cta{background:#eceae6;border:1px solid #a9a6a0;border-radius:3px;padding:6px;text-align:center;
+  font-weight:700;font-size:.72rem;color:#333}
+
+/* label / control preference rows */
+.lax-prefs{display:grid;gap:0;font-size:.72rem;background:#fff;border:1px solid #c9c6c0;border-radius:3px}
+.lax-prefs .pr{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:10px;
+  padding:5px 10px;align-items:center;border-bottom:1px solid #eceae6}
+.lax-prefs .pr:last-child{border-bottom:none}
+.lax-prefs .pr.wide{grid-template-columns:minmax(0,1.2fr) minmax(0,.6fr) auto minmax(0,.9fr)}
+.lax-prefs .pr .k{color:#333}
+.lax-prefs .pr .ap{font-size:.66rem;color:#666;white-space:nowrap}
+.lax-prefs .pr.hit{background:var(--accent-soft);outline:2px solid var(--accent);outline-offset:-2px;border-radius:3px}
+.lax-sub{display:flex;gap:4px;padding:8px 10px 0;flex-wrap:wrap}
+.lax-sub span{background:#eceae6;border:1px solid #c9c6c0;border-radius:4px;padding:4px 11px;font-size:.7rem;font-weight:700;color:#555}
+.lax-sub span.on{background:#fff;color:#1C2130;border-color:#999}
+
+/* driver timeline (Graph tab) */
+.lax-gantt{background:#fff;overflow:hidden}
+.lax-gantt .hd{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;border-bottom:1px solid #c9c6c0}
+.lax-gantt .hd span{font-size:.64rem;font-weight:700;padding:3px 4px;border-right:1px solid #e4e2de;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:#f2f1ee}
+.lax-gantt .bd{position:relative;height:132px;display:grid;grid-auto-flow:column;grid-auto-columns:1fr}
+.lax-gantt .col{border-right:1px solid #eceae6;position:relative;
+  background:repeating-linear-gradient(180deg,#fff 0 21px,#f4f6fa 21px 22px)}
+.lax-gantt .blk{position:absolute;left:3px;right:3px;border-radius:3px;padding:2px 4px;font-size:.6rem;
+  line-height:1.2;color:#4a1f12;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.18)}
+.lax-gantt .blk.a{background:#F4A08A;border:1px solid #d9765c}
+.lax-gantt .blk.b{background:#9FE3EF;border:1px solid #63b9c8;color:#0d3b44}
+.lax-gantt .blk.c{background:#FBE08A;border:1px solid #d4b23f;color:#4a3c0d}
+.lax-gantt .hrs{position:absolute;left:0;top:0;bottom:0;width:34px;background:#f2f1ee;
+  border-right:1px solid #c9c6c0;font-size:.58rem;color:#666;z-index:2}
+.lax-gantt .hrs i{display:block;height:22px;padding:1px 3px;font-style:normal;border-bottom:1px solid #e4e2de}
+
+/* month calendar */
+.lax-cal{background:#fff}
+.lax-cal .dow{display:grid;grid-template-columns:repeat(7,1fr);background:#f2f1ee;border-bottom:1px solid #c9c6c0}
+.lax-cal .dow span{font-size:.62rem;font-weight:700;text-align:center;padding:3px 0;color:#444}
+.lax-cal .wk{display:grid;grid-template-columns:repeat(7,1fr)}
+.lax-cal .dy{border:1px solid #e4e2de;min-height:34px;padding:2px 4px;font-size:.6rem;color:#888;position:relative}
+.lax-cal .dy.out{background:#f4f3f1}
+.lax-cal .dy.now{background:#EAF2FB}
+.lax-cal .dy em{position:absolute;right:3px;top:1px;font-style:normal}
+.lax-cal .ev{display:block;border-radius:2px;padding:1px 3px;margin-top:11px;font-size:.56rem;color:#1C2130;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lax-cal .ev.a{background:#F4A08A}.lax-cal .ev.b{background:#9FE3EF}.lax-cal .ev.c{background:#CDEBD6}
+
+/* map mock */
+.lax-map{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:0;height:190px}
+@media (max-width:640px){.lax-map{grid-template-columns:1fr;height:auto}}
+.lax-map .cv{position:relative;background:
+  radial-gradient(circle at 26% 34%,#dbe7f5 0 16%,transparent 17%),
+  radial-gradient(circle at 72% 62%,#dbe7f5 0 12%,transparent 13%),
+  linear-gradient(180deg,#eef3f8,#e4ebf3);border-right:1px solid #c9c6c0;overflow:hidden}
+.lax-map .cv::before{content:"";position:absolute;inset:0;
+  background-image:linear-gradient(#cfd9e6 1px,transparent 1px),linear-gradient(90deg,#cfd9e6 1px,transparent 1px);
+  background-size:34px 34px;opacity:.55}
+.lax-map .pin{position:absolute;width:15px;height:15px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);
+  border:2px solid #fff;box-shadow:0 2px 5px rgba(0,0,0,.35)}
+.lax-map .pin.a{background:#E4562A}.lax-map .pin.b{background:#2C6FB5}.lax-map .pin.c{background:#2F8F5B}
+.lax-map .zoom{position:absolute;right:6px;top:6px;background:#fff;border:1px solid #bbb;border-radius:3px;
+  font-size:.7rem;line-height:1.6;text-align:center;width:18px}
+.lax-map .zoom i{display:block;font-style:normal;border-bottom:1px solid #ddd}
+.lax-map .zoom i:last-child{border:none}
+.lax-map .osm{position:absolute;right:4px;bottom:2px;font-size:.55rem;color:#667;background:rgba(255,255,255,.7);padding:0 3px}
+.lax-map .lst{background:#fff;overflow:hidden}
+.lax-map .lst table{width:100%;border-collapse:collapse;font-size:.62rem}
+.lax-map .lst th{background:#eceae6;border:1px solid #d8d5d0;padding:2px 4px;font-size:.6rem;
+  font-family:var(--body);text-transform:none;letter-spacing:0;color:#333}
+.lax-map .lst td{border:1px solid #e4e2de;padding:2px 4px}
+.lax-map .lst tr.a td{background:#F4A08A}.lax-map .lst tr.b td{background:#9FE3EF}
+.lax-map .lst td.ad{background:#fff;color:#444;font-size:.58rem}
+
+/* gps mock */
+.lax-gps{position:relative;height:150px;background:linear-gradient(180deg,#eef3f8,#e4ebf3)}
+.lax-gps::before{content:"";position:absolute;inset:0;
+  background-image:linear-gradient(#cfd9e6 1px,transparent 1px),linear-gradient(90deg,#cfd9e6 1px,transparent 1px);
+  background-size:30px 30px;opacity:.55}
+.lax-gps .car{position:absolute;background:#1C2130;color:#fff;border-radius:11px;padding:1px 6px;
+  font-size:.56rem;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.3)}
+.lax-gps .car b{color:#FF9C7A}
+.lax-gps .car.m1{animation:gpsM1 9s linear infinite}
+.lax-gps .car.m2{animation:gpsM2 11s linear infinite}
+.lax-gps .car.m3{animation:gpsM3 13s linear infinite}
+@keyframes gpsM1{0%{left:8%;top:62%}50%{left:52%;top:24%}100%{left:8%;top:62%}}
+@keyframes gpsM2{0%{left:66%;top:70%}50%{left:30%;top:44%}100%{left:66%;top:70%}}
+@keyframes gpsM3{0%{left:40%;top:12%}50%{left:78%;top:52%}100%{left:40%;top:12%}}
+.lax-gps .ctl{position:absolute;right:8px;top:8px;background:#fff;border:1px solid #bbb;border-radius:3px;
+  padding:3px 7px;font-size:.6rem;display:flex;gap:8px}
+
+/* status walk (5.2) */
+.lax-walk{display:flex;gap:6px;flex-wrap:wrap;align-items:center;padding:10px;background:#f6f5f3;
+  border-top:1px solid #d8d5d0}
+.lax-walk .st{border:1px solid #bbb;border-radius:99px;padding:3px 11px;font-size:.68rem;font-weight:700;
+  background:#fff;color:#666;transition:background .35s,color .35s,border-color .35s,transform .35s}
+.lax-walk .st.on{transform:scale(1.06);box-shadow:0 2px 8px rgba(0,0,0,.16)}
+.lax-walk .st.on.c1{background:#EDEFF3;color:#333;border-color:#999}
+.lax-walk .st.on.c2{background:#9FE3EF;color:#0d3b44;border-color:#63b9c8}
+.lax-walk .st.on.c3{background:#CDEBD6;color:#1d4f33;border-color:#7bbb96}
+.lax-walk .st.on.c4{background:#FBE08A;color:#4a3c0d;border-color:#d4b23f}
+.lax-walk .st.on.c5{background:#F4A08A;color:#4a1f12;border-color:#d9765c}
+.lax-walk .st.on.c6{background:#fff;color:#333;border-color:#333}
+.lax-walk .ar{color:#999;font-size:.7rem}
+
+/* a plain framed screen when no tour is needed */
+.la-shot{border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:var(--e2);margin:14px 0;background:#fff}
+.la-shot .cap{background:var(--surface-2);border-top:1px solid var(--line);padding:7px 12px;
+  font-size:.82rem;color:var(--ink-2)}
+.la-shot .cap b{color:var(--ink)}
+.la-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}
+@media (max-width:900px){.la-cols{grid-template-columns:1fr}}
+.la-cols > .la-shot{margin:0}
+
 </style></head><body>
 <div class="shell">
 <aside class="side">
@@ -2031,6 +2226,9 @@ body.has-rvbar #fbOpen{display:none}
   <div class="tile"><h4>The ❗ attention column</h4><p>Flags the company has switched on: unpaid balance, child seat, meet-and-greet, VIP, last-minute booking, driver rejected. Learn to scan this column first.</p></div>
 </div>
 <div class="callout info"><b>New Dispatch Grid</b><p>Newer accounts use the redesigned grid (List view and Map view, a Details / Edit / Attention panel on the right, filters with Column + Operator + Value that can be saved as tabs, and Batch Edit to change status, driver, car or time on many trips at once). The ideas in this section are the same on both.</p></div>
+
+<h4 class="tour-h">Tour · The dispatch board, column by column</h4>
+<div class="anat" id="tourDisp" data-tour="disp"><div class="anat-shot lam"><div class="lax-top"><span class="lg">LIMO ANYWHERE</span><span class="sp"></span><i class="r">Rate</i><i class="d">New Res ▾</i><span class="fd"></span><i class="d">Find</i></div><div class="lax-mods"><span>My Office</span><span>Accounts</span><span>Quotes</span><span>Calendar</span><span>Reservations</span><span class="on">Dispatch</span><span>Network</span><span>Settle</span><span>Receivables</span><span>Reports</span><span>Tools</span></div><div class="lax-tabs2"><span class="on" id="d51g">Grid</span><span id="d51m">Map</span><span id="d51r">Graph</span><span id="d51p">GPS</span><span class="lnk" id="d51setup">Grid Setup</span><span class="lnk">Manage Statuses</span><span class="lnk">Link Drivers and Cars</span><span class="rt"><em class="lnk">New Dispatch</em><em>Use inGrid Controls</em><em id="d51cnt">Trip Count&nbsp;&nbsp;4</em></span></div><div class="lax-bar"><span class="lax-date"><b>◀</b><span class="d">09/04/2026</span><b>▶</b></span><span id="d51inc"><b style="font-size:.68rem">Include:</b> <span class="lax-chks"><span class="lax-chk on"><i></i>New/Live</span><span class="lax-chk on"><i></i>In-House</span><span class="lax-chk on"><i></i>Farm-Out</span><span class="lax-chk"><i></i>Settled</span><span class="lax-chk on"><i></i>Farm-In</span><span class="lax-chk"><i></i>Quotes</span></span></span><span id="d51q">Quick Search Within Grid: <span class="lax-srch"></span> <span class="lax-go">GO</span> <span style="color:#1a5fb4;text-decoration:underline">Advanced Search</span></span></div><div class="lax-scroll"><table class="lax-grid" id="d51tbl"><colgroup><col style="width:12%"><col style="width:15%"><col style="width:9%"><col style="width:7%"><col style="width:7%"><col style="width:11%"><col style="width:10%"><col style="width:14%"><col style="width:15%"></colgroup><thead><tr><th>Alias</th><th>Status</th><th>Conf#</th><th>Type</th><th>Run</th><th>PU Date</th><th>PU Time</th><th>PU Rt Name</th><th>Driver</th></tr></thead><tbody><tr class="s-uns" id="d51r1"><td>groundops</td><td>Unassigned</td><td>16092</td><td>INH</td><td>AIR</td><td>09/04/2026</td><td>06:40 AM</td><td>DFW Terminal D</td><td>—</td></tr><tr class="s-asg" id="d51r2"><td>groundops</td><td>Assigned</td><td>16083</td><td>INH</td><td>PTP</td><td>09/04/2026</td><td>07:00 AM</td><td>Fairmont Dallas</td><td>Darrell N.</td></tr><tr class="s-car" id="d51r3"><td>groundops</td><td>Customer In Car</td><td>16084</td><td>INH</td><td>PTP</td><td>09/04/2026</td><td>08:00 AM</td><td>Fairmont Dallas</td><td>Priya N.</td></tr><tr class="s-done" id="d51r4"><td>groundops</td><td>Done</td><td>15987</td><td>FMO</td><td>AIR</td><td>09/04/2026</td><td>05:00 PM</td><td>Grand Hyatt DFW</td><td>City Cars (aff.)</td></tr></tbody></table></div></div></div>
 </div>
 
 <div class="lesson" id="s5-2" data-title="5.2 Assigning and dispatching a driver"><div class="lesson-head"><span class="eyebrow">Lesson 2 of 6</span><h3>5.2 Assigning and dispatching a driver</h3></div>
@@ -2049,6 +2247,8 @@ body.has-rvbar #fbOpen{display:none}
   <div class="tile"><h4>Conflicts</h4><p>If Grid Setup › Conflicts is on, the board warns when the same driver or car is on two overlapping trips. It warns; it does not stop you.</p></div>
   <div class="tile"><h4>Farm-outs on the board</h4><p>A farmed-out trip shows the affiliate's statuses (Offered to affiliate → Affiliate assigned → Affiliate driver on the way…) when real-time updates are on for both companies.</p></div>
 </div>
+
+<div class="la-shot"><div class="lax"><div class="lax-top"><span class="lg">LIMO ANYWHERE</span><span class="sp"></span><i class="r">Rate</i><i class="d">New Res ▾</i><span class="fd"></span><i class="d">Find</i></div><div class="lax-mods"><span>My Office</span><span>Accounts</span><span>Quotes</span><span>Calendar</span><span>Reservations</span><span class="on">Dispatch</span><span>Network</span><span>Settle</span><span>Receivables</span><span>Reports</span><span>Tools</span></div><div class="lax-scroll"><table class="lax-grid"><colgroup><col style="width:20%"><col style="width:12%"><col style="width:14%"><col style="width:12%"><col style="width:20%"><col style="width:22%"></colgroup><thead><tr><th>Status</th><th>Conf#</th><th>PU Time</th><th>Run</th><th>PU Rt Name</th><th>Driver</th></tr></thead><tbody><tr id="w52row" class="s-uns"><td id="w52st">Unassigned</td><td>16083</td><td>07:00 AM</td><td>PTP</td><td>Fairmont Dallas</td><td id="w52drv">—</td></tr></tbody></table></div><div class="lax-walk" id="w52"><span class="st c1 on" data-c="c1" data-s="Unassigned" data-d="—">Unassigned</span><span class="ar">→</span><span class="st c2" data-c="c2" data-s="Assigned" data-d="Darrell N.">Assigned</span><span class="ar">→</span><span class="st c3" data-c="c3" data-s="Dispatched" data-d="Darrell N.">Dispatched</span><span class="ar">→</span><span class="st c4" data-c="c4" data-s="On the way" data-d="Darrell N.">On the way</span><span class="ar">→</span><span class="st c5" data-c="c5" data-s="Customer In Car" data-d="Darrell N.">Customer In Car</span><span class="ar">→</span><span class="st c6" data-c="c6" data-s="Done" data-d="Darrell N.">Done</span></div></div><div class="cap">The same trip, walked through the statuses. <b>Assigned</b> means you have chosen a driver; <b>Dispatched</b> is the moment the driver is actually told. Everything after that is the driver tapping buttons in Driver&nbsp;Anywhere — the colour on your board changes on its own.</div></div>
 </div>
 
 <div class="lesson" id="s5-3" data-title="5.3 Try it: dispatch a trip"><div class="lesson-head"><span class="eyebrow">Lesson 3 of 6</span><h3>5.3 Try it: dispatch a trip</h3></div>
@@ -2076,6 +2276,9 @@ body.has-rvbar #fbOpen{display:none}
   <div class="tile"><h4>Company Prefs — for everyone</h4><p>Which flags appear: unpaid balance, child seat, last-minute booking (you choose the window), driver rejected, Driver Anywhere messaging.</p></div>
   <div class="tile"><h4>Filters &amp; presets (new grid)</h4><p>Column + Operator + Value, e.g. <em>Driver · Equals · Darrell</em>, or <em>Conf# · Contains · 154</em>. Save as a preset or a permanent tab such as "Airport runs today".</p></div>
 </div>
+
+<h4 class="tour-h">Tour · Grid Setup, tab by tab</h4>
+<div class="anat" id="tourGrid" data-tour="grid"><div class="anat-shot lam"><div class="lax"><div style="background:#e9e9e9;padding:6px 10px;font-weight:700;font-size:.75rem;border-bottom:1px solid #c9c6c0">Dispatch Grid Field Configuration</div><div class="lax-sub" id="g54tabs"><span class="on" id="g54t1">Grid Setup</span><span id="g54t2">Date/Time</span><span id="g54t3">Conflicts</span><span id="g54t4">My Prefs</span><span id="g54t5">Company Prefs</span></div><div style="padding:10px"><div id="g54p1"><div class="lax-f" style="margin-bottom:8px"><label>Copy Grid Configuration From:</label><div style="display:flex;gap:6px"><span class="lax-ctl sel" style="flex:1">admin (Master User)</span><span class="lax-btn" style="flex:0 0 40px">Go</span></div></div><div class="lax-prefs"><div class="pr" style="background:#f2f1ee;font-weight:700"><span class="k">Show &nbsp;·&nbsp; Field Name</span><span>Width</span></div><div class="pr"><span class="k"><span class="lax-chk on"><i></i>Company Alias</span></span><span class="lax-ctl" style="max-width:90px">100 px</span></div><div class="pr"><span class="k"><span class="lax-chk on"><i></i>Trip Status</span></span><span class="lax-ctl" style="max-width:90px">100 px</span></div><div class="pr"><span class="k"><span class="lax-chk on"><i></i>Confirmation Number</span></span><span class="lax-ctl" style="max-width:90px">100 px</span></div><div class="pr"><span class="k"><span class="lax-chk on"><i></i>Trip Type (In-House/Farm-In/Farm-Out)</span></span><span class="lax-ctl" style="max-width:90px">100 px</span></div><div class="pr"><span class="k"><span class="lax-chk on"><i></i>Run Type (Airport/Point-to-Point)</span></span><span class="lax-ctl" style="max-width:90px">100 px</span></div><div class="pr"><span class="k"><span class="lax-chk on"><i></i>Pick-up Date</span></span><span class="lax-ctl" style="max-width:90px">100 px</span></div><div class="pr"><span class="k"><span class="lax-chk on"><i></i>Pick-up Time</span></span><span class="lax-ctl" style="max-width:90px">100 px</span></div><div class="pr"><span class="k"><span class="lax-chk on"><i></i>Garage-Out Time</span></span><span class="lax-ctl" style="max-width:90px">110 px</span></div><div class="pr"><span class="k"><span class="lax-chk "><i></i>PU Routing as a single block</span></span><span class="lax-ctl" style="max-width:90px">250 px</span></div><div class="pr"><span class="k"><span class="lax-chk on"><i></i>PU Rt Name</span></span><span class="lax-ctl" style="max-width:90px">100 px</span></div><div class="pr"><span class="k"><span class="lax-chk on"><i></i>PU Rt Addr1</span></span><span class="lax-ctl" style="max-width:90px">250 px</span></div></div></div><div id="g54p2" hidden><div class="lax-prefs"><div class="pr"><span class="k">Date Format</span><span class="lax-ctl sel">MM/DD/YYYY</span></div><div class="pr"><span class="k">Time Format</span><span class="lax-ctl sel">HH:MM AM/PM</span></div><div class="pr"><span class="k">Refresh Dispatch Every</span><span class="lax-ctl sel">Auto Updates</span></div><div class="pr"><span class="k">Refresh Dispatch Grid after Payments</span><span class="lax-ctl sel">No</span></div><div class="pr"><span class="k">Grid Day Start Time</span><span class="lax-ctl">12:00 AM</span></div><div class="pr"><span class="k">Grid Day End Time</span><span class="lax-ctl">12:00 AM</span></div></div></div><div id="g54p3" hidden><div class="lax-prefs"><div class="pr"><span class="k">Switch assignment conflicts</span><span class="lax-ctl sel">Off</span></div></div><p class="lax-note" style="margin-top:8px">One switch, and it is the one that stops you putting the same driver or the same car on two trips at the same time.</p></div><div id="g54p4" hidden><div class="lax-prefs"><div class="pr"><span class="k">Statuses to exclude when the grid loads</span><span class="lax-ctl sel">Select options</span></div><div class="pr"><span class="k">Enable iGrid options</span><span class="lax-ctl sel">No</span></div><div class="pr"><span class="k">Highlight Airport Runs?</span><span class="lax-ctl sel">Yes &nbsp;<b style="background:#FBE08A;width:14px;height:12px;display:inline-block;border:1px solid #999"></b></span></div><div class="pr"><span class="k">Highlight VIP/VVIP Passenger Status?</span><span class="lax-ctl sel">Yes &nbsp;<b style="background:#E9C7F0;width:14px;height:12px;display:inline-block;border:1px solid #999"></b></span></div><div class="pr"><span class="k">Show Driver contact information on hover</span><span class="lax-ctl sel">Yes</span></div><div class="pr"><span class="k">Show Passenger contact information on hover</span><span class="lax-ctl sel">Yes</span></div></div></div><div id="g54p5" hidden><div class="lax-prefs"><div class="pr"><span class="k">Flag: unpaid balance</span><span class="lax-ctl sel">Yes</span></div><div class="pr"><span class="k">Flag: child seat required</span><span class="lax-ctl sel">Yes</span></div><div class="pr"><span class="k">Flag: last-minute booking (window)</span><span class="lax-ctl">120 minutes</span></div><div class="pr"><span class="k">Flag: driver rejected the trip</span><span class="lax-ctl sel">Yes</span></div></div><p class="lax-note" style="margin-top:8px">These are set once for the whole company — everyone sees the same flags.</p></div><div style="display:flex;gap:8px;justify-content:center;margin-top:10px"><span class="lax-cta" style="padding:6px 16px">Update Dispatch Grid Fields</span><span class="lax-cta" style="padding:6px 16px;background:#fff">Cancel</span></div></div></div></div></div>
 </div>
 
 <div class="lesson" id="s5-5" data-title="5.5 Map, GPS and calendar"><div class="lesson-head"><span class="eyebrow">Lesson 5 of 6</span><h3>5.5 Map, GPS and calendar</h3></div>
@@ -2085,6 +2288,9 @@ body.has-rvbar #fbOpen{display:none}
   <div class="tile"><h4>Calendar</h4><p>Month, week, work-week or day views of the same trips, colour-coded by status, filterable by status, driver, car or vehicle type. Non-trip events (meetings, vehicle service) are added by hand. Defaults live under Company Preferences › Accounts, Calendar, Quotes.</p></div>
 </div>
 <div class="callout tip"><b>Driver's side of the same picture</b><p>In Driver Anywhere the driver taps <em>On duty</em>, picks their car, sees Upcoming / In progress / Pending, and moves through the statuses in order (they can skip Circling but never go backwards). They can add notes, photos, wait time, tolls and — if allowed — take payment at the end. Everything they tap lands on your board.</p></div>
+
+<div class="la-shot"><div class="lax"><div class="lax-top"><span class="lg">LIMO ANYWHERE</span><span class="sp"></span><i class="r">Rate</i><i class="d">New Res ▾</i><span class="fd"></span><i class="d">Find</i></div><div class="lax-mods"><span>My Office</span><span>Accounts</span><span>Quotes</span><span>Calendar</span><span>Reservations</span><span class="on">Dispatch</span><span>Network</span><span>Settle</span><span>Receivables</span><span>Reports</span><span>Tools</span></div><div class="lax-tabs2"><span id="v55a">Grid</span><span class="on" id="v55b">Map</span><span id="v55c">Graph</span><span id="v55d">GPS</span></div><div id="v55pm"><div class="lax-map"><div class="cv"><span class="pin a" style="left:24%;top:32%"></span><span class="pin b" style="left:58%;top:52%"></span><span class="pin c" style="left:70%;top:24%"></span><span class="zoom"><i>+</i><i>−</i><i>▲</i></span><span class="osm">OpenStreetMap</span></div><div class="lst"><table><thead><tr><th>Conf#</th><th>PU Date</th><th>PU Time</th><th>DO Time</th></tr></thead><tbody><tr class="b"><td>15987</td><td>09/04/2026</td><td>05:00 PM</td><td>06:00 PM</td></tr><tr><td class="ad" colspan="4">PU 4000 Harbour Blvd, Palm Beach Gardens, FL</td></tr><tr class="a"><td>16083</td><td>09/04/2026</td><td>07:00 AM</td><td>08:00 AM</td></tr><tr><td class="ad" colspan="4">PU 1717 Commerce St, Dallas, TX</td></tr></tbody></table></div></div></div><div id="v55pr" hidden><div class="lax-scroll"><div class="lax-gantt"><div class="hd"><span>Unassigned</span><span>Darrell N.</span><span>Priya N.</span><span>Marcus O.</span><span>Lena T.</span><span>Sam R.</span></div><div class="bd"><span class="hrs"><i>06</i><i>07</i><i>08</i><i>09</i><i>10</i><i>11</i></span><div class="col"></div><div class="col"><span class="blk a" style="top:22px;height:40px">07:00–08:00<br>Fairmont Dallas</span></div><div class="col"><span class="blk b" style="top:44px;height:40px">08:00–09:00<br>Fairmont Dallas</span></div><div class="col"><span class="blk c" style="top:0;height:32px">06:40–07:20<br>DFW Terminal D</span></div><div class="col"></div><div class="col"></div></div></div><div style="padding:6px 10px;background:#f6f5f3;border-top:1px solid #d8d5d0;font-size:.68rem"><span class="lax-btn blue" style="display:inline-block;flex:none">Drivers</span> <span class="lax-btn" style="display:inline-block;flex:none">Cars</span></div></div></div><div id="v55pp" hidden><div style="padding:6px 10px;background:#fff;border-bottom:1px solid #d8d5d0;font-size:.7rem">GPS Source: <span class="lax-ctl sel" style="display:inline-flex;width:150px">Driver Anywhere</span></div><div class="lax-gps"><span class="ctl"><span class="lax-chk on"><i></i>On Duty</span><span class="lax-chk on"><i></i>Show Labels?</span></span><span class="car m1">🚗 <b>Darrell N.</b> · 38 mph</span><span class="car m2">🚗 <b>Priya N.</b> · 0 mph · waiting</span><span class="car m3">🚗 <b>Marcus O.</b> · 55 mph</span></div></div></div><div class="cap"><b>One day, four ways.</b> The tabs above the board show the same trips as a list, as pins on a map, as a driver-by-driver timeline, or as live cars. Nothing is entered here — these are views, not screens you fill in.</div></div>
+<div class="la-shot"><div class="lax"><div class="lax-tabs2"><span class="on">Month</span><span>Week</span><span>W-Week</span><span>Day</span><span class="rt"><em>September 2026</em><em class="lnk">Print</em></span></div><div class="lax-bar"><span class="lax-date"><b>◀</b><span class="d">Today</span><b>▶</b></span><span class="lax-chks" style="grid-template-columns:repeat(3,auto)"><span class="lax-chk"><i></i>Only Reservations</span><span class="lax-chk"><i></i>Only My Events</span><span class="lax-chk"><i></i>Show Settled Trips</span></span><span style="display:flex;gap:6px;flex-wrap:wrap"><span class="lax-ctl sel" style="width:96px">Status(es)</span><span class="lax-ctl sel" style="width:96px">Driver(s)</span><span class="lax-ctl sel" style="width:96px">Car(s)</span><span class="lax-ctl sel" style="width:110px">Vehicle Type(s)</span><span class="lax-go">Search</span></span></div><div class="lax-scroll"><div class="lax-cal"><div class="dow"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div><div class="wk"><div class="dy out"><em>31</em></div><div class="dy"><em>1</em><span class="ev b">07:00 Fairmont</span></div><div class="dy"><em>2</em></div><div class="dy"><em>3</em><span class="ev a">06:40 DFW D</span></div><div class="dy now"><em>4</em><span class="ev a">07:00 Fairmont</span><span class="ev c">17:00 Hyatt</span></div><div class="dy"><em>5</em></div><div class="dy"><em>6</em></div></div><div class="wk"><div class="dy"><em>7</em></div><div class="dy"><em>8</em><span class="ev b">09:15 Love Fld</span></div><div class="dy"><em>9</em></div><div class="dy"><em>10</em></div><div class="dy"><em>11</em><span class="ev c">Service: YUK1</span></div><div class="dy"><em>12</em></div><div class="dy"><em>13</em></div></div></div></div></div><div class="cap">The <b>Calendar</b> module is the same trips again, month at a glance. Non-trip events — a vehicle in for service, a team meeting — are typed in here by hand and show up beside the trips.</div></div>
 </div>
 
 <div class="lesson" id="s5-6" data-title="5.6 Knowledge check"><div class="lesson-head"><span class="eyebrow">Lesson 6 of 6</span><h3>5.6 Knowledge check</h3></div>
@@ -2166,6 +2372,8 @@ body.has-rvbar #fbOpen{display:none}
   <div class="tile"><h4>Off-boarding</h4><p>Edit the user: Activation → Inactive, Lock-out → Locked, note the reason. Never delete — history stays attached to the user.</p></div>
 </div>
 <div class="callout info"><b>Password rules</b><p>Back office: at least 12 characters with upper and lower case, a number and a symbol, and not containing the username. Driver Anywhere and passenger apps: at least 7 characters with the same mix. The Company ID is never emailed — the admin tells new users what it is.</p></div>
+
+<div class="la-shot"><div class="lax"><div class="lax-top"><span class="lg">LIMO ANYWHERE</span><span class="sp"></span><i class="r">Rate</i><i class="d">New Res ▾</i><span class="fd"></span><i class="d">Find</i></div><div class="lax-mods"><span class="on">My Office</span><span>Accounts</span><span>Quotes</span><span>Calendar</span><span>Reservations</span><span>Dispatch</span><span>Network</span><span>Settle</span><span>Receivables</span><span>Reports</span><span>Tools</span></div><div class="lax-tabs2"><span class="on">Company Settings</span><span>Company Resources</span><span>Rate Management</span><span>List Management</span><span>Custom Forms</span></div><div class="lax-2" style="grid-template-columns:150px minmax(120px,1fr) minmax(0,2fr)"><div class="lax-panel" style="padding:0;border:none;background:none"><div class="lax-btn" style="flex:none;display:block;margin-bottom:3px;text-align:left">Contact Information</div><div class="lax-btn" style="flex:none;display:block;margin-bottom:3px;text-align:left">Company Preferences</div><div class="lax-btn blue" style="flex:none;display:block;margin-bottom:3px;text-align:left">System Users</div><div class="lax-btn" style="flex:none;display:block;margin-bottom:3px;text-align:left">Policies</div><div class="lax-btn" style="flex:none;display:block;margin-bottom:3px;text-align:left">Online Reservations</div><div class="lax-btn" style="flex:none;display:block;margin-bottom:3px;text-align:left">Payment Gateway</div><div class="lax-btn" style="flex:none;display:block;margin-bottom:3px;text-align:left">System Settings</div></div><div class="lax-panel"><b>Users</b><div class="lax-lst"><i>Amar P. (owner)</i><i class="sel">Priya N.</i><i>Darrell W.</i><i>Miranda A.</i><i class="off">Steven B. (inactive)</i><i>Lena T.</i></div><div class="lax-btns"><span class="lax-btn wide">EDIT USER</span></div></div><div class="lax-panel"><b>Add User</b><div class="lax-fs"><span class="lg">Personal Information</span><div class="lax-rows c2"><div class="lax-f"><label>First Name</label><div class="lax-ctl"></div></div><div class="lax-f"><label>Last Name</label><div class="lax-ctl"></div></div><div class="lax-f"><label>Mobile Phone Number</label><div class="lax-ctl"></div></div><div class="lax-f"><label>Email Address</label><div class="lax-ctl"></div></div></div></div><div class="lax-rows c2"><div class="lax-fs"><span class="lg">Web Access</span><div class="lax-f"><label>Username</label><div class="lax-ctl"></div></div></div><div class="lax-fs"><span class="lg">User Statuses &amp; Groups</span><div class="lax-f"><label>Primary Role</label><div class="lax-ctl sel" id="u62role">Reservationist</div></div><div class="lax-rows c2" style="margin-top:6px"><div class="lax-f"><label>Activation</label><div class="lax-ctl sel">Active</div></div><div class="lax-f"><label>Lock-out</label><div class="lax-ctl sel">Unlocked</div></div></div></div></div><div class="lax-fs"><span class="lg">Restrict Access by IP Address</span><div class="lax-rows c2"><div class="lax-f"><label>Allowed IPs</label><div class="lax-ctl tall"></div></div><div class="lax-f"><label>Blocked IPs</label><div class="lax-ctl tall"></div></div></div></div><div class="lax-cta">CONTINUE</div><p class="lax-note" style="margin-top:8px">A <b>Calendar Only</b> user signs in at <code>/calendar/</code>, not <code>/admin/</code> — worth saying out loud when you hand the login over.</p></div></div></div><div class="cap"><b>Adding a colleague.</b> The three things that decide what they can do are <b>Primary Role</b>, <b>Activation</b> and <b>Lock-out</b>. Leaving someone Active when they have left the company is the mistake to avoid — set Activation to Inactive rather than deleting them, so their old reservations keep their name on them.</div></div>
 </div>
 <div class="lesson" id="s6-3" data-title="6.3 Service types: what the company sells"><div class="lesson-head"><span class="eyebrow">Lesson 3 of 10</span><h3>6.3 Service types: what the company sells</h3></div>
 <div class="plain"><b>In plain words</b> — A service type is a product on the menu: "Airport pickup", "Hourly as directed", "Point to point", "Wedding charter". Picking one on a reservation decides <em>how the price is worked out</em> and <em>which vehicles are offered</em>. Set these up first; everything else refers to them.</div>
@@ -2214,6 +2422,10 @@ body.has-rvbar #fbOpen{display:none}
   <div class="tile"><h4>Airports &amp; airlines</h4><p>All airports are pre-loaded but inactive. Show All, find yours, set Active — that puts it in the reservation dropdown. Same for airlines; private airlines (FBOs) need an address.</p></div>
   <div class="tile"><h4>Points of interest</h4><p>Stadiums, hotels, venues the company goes to often, with a category and address, so they can be picked from the POI tab.</p></div>
 </div>
+
+<h4 class="tour-h">The two screens, side by side</h4>
+<div class="la-cols"><div class="la-shot"><div class="lax"><div class="lax-tabs2"><span>Company Settings</span><span class="on">Company Resources</span><span>Rate Management</span><span>List Management</span><span>Custom Forms</span></div><div class="lax-2"><div class="lax-panel"><b>Vehicle Type Listing</b><div class="lax-lst"><i>Sedan Towncar (SED)</i><i class="sel">Sports Utility Vehicle (SUV)</i><i>Sprinter (SPRINTER)</i><i>Limo (LIMO)</i><i>Minibus (MINIBUS)</i><i>Motor Coach (MOTOR COACH)</i><i>Electric Vehicle (EV)</i></div><div class="lax-btns"><span class="lax-btn wide">EDIT VEHICLE TYPE</span></div><div class="lax-btns"><span class="lax-btn blue wide">Configure Sort Order</span></div></div><div class="lax-panel"><b>Add New Vehicle Type</b><div class="lax-fs"><span class="lg">Vehicle Type Information &nbsp; <span class="lax-chk"><i></i></span><span style="color:#C0392B">Hide in Online Reservation System</span></span><div class="lax-rows c3"><div class="lax-f"><label>Code</label><div class="lax-ctl" id="t64code">SUV</div></div><div class="lax-f"><label>Vehicle Type Title</label><div class="lax-ctl">Sports Utility Vehicle</div></div><div class="lax-f"><label>Status</label><div class="lax-ctl sel">ACTIVE</div></div></div></div><div class="lax-fs"><span class="lg">Vehicle Specific Data</span><div class="lax-rows c3"><div class="lax-f"><label>Calculate Rates Based On</label><div class="lax-ctl sel">Hours</div></div><div class="lax-f"><label>Passenger Capacity</label><div class="lax-ctl sel">6</div></div><div class="lax-f"><label>Luggage Capacity</label><div class="lax-ctl sel">6</div></div></div><div class="lax-rows c2" style="margin-top:7px"><div class="lax-f"><label>Associated With Service Types</label><div class="lax-ctl sel">Airport, Point-to-Point, Hourly</div></div><div class="lax-f"><label>Color Code</label><div class="lax-ctl">#9FE3EF <b style="background:#9FE3EF;width:14px;height:12px;display:inline-block;border:1px solid #999"></b></div></div></div></div><div class="lax-cta">ADD NEW VEHICLE TYPE</div></div></div></div><div class="cap"><b>Vehicle types are what you sell.</b> A customer books "an SUV", never "YUK1". Capacity here is what the booking screen checks against the passenger count.</div></div><div class="la-shot"><div class="lax"><div class="lax-tabs2"><span>Company Settings</span><span class="on">Company Resources</span><span>Rate Management</span><span>List Management</span><span>Custom Forms</span></div><div class="lax-2"><div class="lax-panel"><b>Fleet</b><div class="lax-lst"><i>SED (Lincoln Continental)</i><i class="sel">SUV-1 (2024 GMC Yukon XL)</i><i>SUV-2 (2023 Cadillac Escalade)</i><i>SPR (Sprinter)</i><i>MTC (55 Pax Motor Coach)</i><i>TSL (Tesla Model Y)</i></div><div class="lax-btns"><span class="lax-btn">Add New Vehicle</span><span class="lax-btn">Edit Vehicle</span></div></div><div class="lax-panel"><b>Add New Vehicle</b><div class="lax-fs"><span class="lg">Vehicle Information</span><div class="lax-rows c2"><div class="lax-f"><label>Code <b>*</b></label><div class="lax-ctl req">SUV-1</div></div><div class="lax-f"><label>Description <b>*</b></label><div class="lax-ctl req">2024 GMC Yukon XL</div></div></div><div class="lax-f" style="margin-top:7px"><label>Vehicle Type</label><div class="lax-ctl sel" id="f64vt">Sports Utility Vehicle (SUV)</div></div><div class="lax-rows c3" style="margin-top:7px"><div class="lax-f"><label>Car Make <b>*</b></label><div class="lax-ctl req">GMC</div></div><div class="lax-f"><label>Car Model <b>*</b></label><div class="lax-ctl req">Yukon XL</div></div><div class="lax-f"><label>Year <b>*</b></label><div class="lax-ctl req">2024</div></div></div><div class="lax-rows c3" style="margin-top:7px"><div class="lax-f"><label>Capacity <b>*</b></label><div class="lax-ctl req">6</div></div><div class="lax-f"><label>Plate Number <b>*</b></label><div class="lax-ctl req">GRD-1142</div></div><div class="lax-f"><label>Status</label><div class="lax-ctl sel">ACTIVE</div></div></div><div class="lax-f" style="margin-top:7px"><label>Link Car with Driver</label><div class="lax-ctl sel">Darrell W.</div></div></div><div class="lax-rows c2"><div class="lax-fs"><span class="lg">Insurance Information</span><div class="lax-f"><label>Policy No.</label><div class="lax-ctl"></div></div><div class="lax-f" style="margin-top:6px"><label>Policy Expiration Date</label><div class="lax-ctl"></div></div></div><div class="lax-fs"><span class="lg">Dispatch Identification</span><div class="lax-f"><label>Color Code</label><div class="lax-ctl">#CDEBD6 <b style="background:#CDEBD6;width:14px;height:12px;display:inline-block;border:1px solid #999"></b></div></div><div class="lax-f" style="margin-top:6px"><label>Nickname</label><div class="lax-ctl">Big Yukon</div></div></div></div><div class="lax-cta">ADD NEW VEHICLE</div></div></div></div><div class="cap"><b>The fleet is the actual metal.</b> Each car points at one vehicle type — that single dropdown is the whole relationship. Sell the type, dispatch the car.</div></div></div>
+<div class="callout info"><b>The link between them</b><p>A reservation asks for a <em>vehicle type</em> ("SUV") because that is what the customer bought and what the price was built from. Dispatch later puts a <em>car</em> on it ("SUV-1"). If the car you pick is not of the type that was sold, Limo Anywhere warns you — that warning is the <em>Warn user if Car assigned does not match Vehicle Type assigned</em> preference in lesson 6.9.</p></div>
 </div>
 <div class="lesson" id="s6-5" data-title="6.5 Rates: how a price is built"><div class="lesson-head"><span class="eyebrow">Lesson 5 of 10</span><h3>6.5 Rates: how a price is built</h3></div>
 <div class="plain"><b>In plain words</b> — A price on a trip is a short list of lines: a base fare, a tip, tax, maybe a fuel fee, maybe a discount. The <strong>System Rate Manager</strong> defines those lines once for the company, and each line is told what kind of number it is and what it is calculated on. Get that right and the maths is automatic.</div>
@@ -2245,6 +2457,9 @@ body.has-rvbar #fbOpen{display:none}
 <div class="callout warn"><b>Snapshots</b><p>The rate table is copied onto a reservation at the moment New Res is clicked. Changing, disabling or reordering a line item affects <em>new</em> reservations only. That is also why "Primary / Secondary" tabs are purely visual — a line's tab only decides whether it is shown up front.</p></div>
 
 
+
+<h4 class="tour-h">Tour · The System Rate Manager</h4>
+<div class="anat" id="tourRates" data-tour="rates"><div class="anat-shot lam"><div class="lax"><div class="lax-tabs2"><span>Company Settings</span><span>Company Resources</span><span class="on">Rate Management</span><span>List Management</span><span>Custom Forms</span></div><div class="lax-2" style="grid-template-columns:150px minmax(150px,1fr) minmax(0,1.4fr)"><div class="lax-panel" style="padding:0;border:none;background:none"><div class="lax-btn blue" style="flex:none;display:block;margin-bottom:3px;text-align:left">System Rate Manager</div><div class="lax-btn" style="flex:none;display:block;margin-bottom:3px;text-align:left">Fixed Rates &amp; Zones Setup</div><div class="lax-btn" style="flex:none;display:block;margin-bottom:3px;text-align:left">Special Promotion Setup</div><div class="lax-btn" style="flex:none;display:block;margin-bottom:3px;text-align:left">Miscellaneous Fees</div></div><div class="lax-panel" id="r65left"><b>Stored Rates</b><div class="lax-fs" style="padding:6px 8px"><span class="lg">Search By</span><div class="lax-chks" style="grid-template-columns:1fr 1fr;font-size:.68rem"><span class="lax-chk on" id="r65f1"><i></i>Fixed Rate</span><span class="lax-chk" id="r65f2"><i></i>Multiplier Rate</span><span class="lax-chk" id="r65f3"><i></i>Percentage Rate</span><span class="lax-chk"><i></i>Show All</span></div><div class="lax-cta" style="margin-top:6px;padding:3px">GO</div></div><div id="r65list"><div class="lax-lst"><i>Flat Rate — (Base Rate)</i><i>Hourly Limo — (Base Rate)</i><i>OT/Wait Time — (Base Rate)</i><i>Meet N Greet — (Base Rate)</i><i>Admin Fee — (Miscellaneous)</i><i>Parking — (Miscellaneous)</i><i>Toll/Parking Charge — (Base Rate)</i></div></div><div class="lax-btns"><span class="lax-btn">Delete</span><span class="lax-btn">Edit</span></div><div class="lax-btns"><span class="lax-btn wide">Add New Rate</span></div><div class="lax-btns"><span class="lax-btn blue wide" id="r65ord">Configure Rate Order</span></div><div class="lax-btns"><span class="lax-btn blue wide" id="r65grp">Configure Rate Grouping</span></div></div><div class="lax-panel"><div class="lax-sub" id="r65tabs" style="padding:0 0 8px"><span class="on" id="r65t1">Fixed Rate</span><span id="r65t2">Multiplier Rate</span><span id="r65t3">Percentage Rate</span></div><div class="lax-fs"><div class="lax-rows c2"><div class="lax-f" id="r65grpf"><label>Rate Group</label><div class="lax-ctl req sel">Base Rate</div></div><div class="lax-f"><label>Rate Name</label><div class="lax-ctl">Flat Rate</div></div></div><div class="lax-rows c2" style="margin-top:7px"><div class="lax-f" id="r65amt"><label>Default Amt</label><div class="lax-ctl">0.00</div></div><div class="lax-f"><label>Status</label><div class="lax-ctl req sel">ACTIVE</div></div></div><div class="lax-f" style="margin-top:7px"><label>Rate Group Description</label><div class="lax-ctl req tall"></div></div><div style="display:flex;gap:14px;margin-top:8px;font-size:.68rem" id="r65flags"><span class="lax-chk on"><i></i><b style="color:#1a5fb4">Primary Rate</b></span><span class="lax-chk"><i></i><b style="color:#1a5fb4">This is a VAT rate</b></span></div></div></div></div></div></div></div>
 </div>
 <div class="lesson" id="s6-6" data-title="6.6 Fixed rates and zones"><div class="lesson-head"><span class="eyebrow">Lesson 6 of 10</span><h3>6.6 Fixed rates and zones</h3></div>
 <div class="plain"><b>In plain words</b> — "From the airport to downtown in an SUV is $165." That is a fixed rate: a set price between two <strong>zones</strong>. A zone is either an area (a city, or a group of zip codes) or an airport. Build the zones first, then the prices between them.</div>
@@ -2259,6 +2474,8 @@ body.has-rvbar #fbOpen{display:none}
   <div class="tile"><h4>Multiple rate sheets</h4><p>Default, Summer, Event weekend… one is flagged as default; a service type or a customer account can point at a different sheet.</p></div>
   <div class="tile"><h4>Fixed always wins online</h4><p>If a zone pair exists, web customers see the fixed price and never the per-mile one. Back-office staff can still choose either tab.</p></div>
 </div>
+
+<div class="la-cols"><div class="la-shot"><div class="lax"><div class="lax-tabs2"><span>Company Settings</span><span>Company Resources</span><span class="on">Rate Management</span><span>List Management</span><span>Custom Forms</span></div><div style="padding:12px 14px;background:#fff"><b style="font-size:.8rem">Select Rate Matrix</b><table style="width:100%;font-size:.72rem;margin-top:8px;border-collapse:collapse"><tr><td style="padding:2px 0"><span style="color:#1a5fb4;text-decoration:underline;font-weight:700">Default</span></td><td style="color:#2F8F5B;font-weight:700">Edit</td><td style="color:#C0392B;font-weight:700">Delete</td></tr><tr><td style="padding:2px 0"><span style="color:#1a5fb4;text-decoration:underline;font-weight:700">Dallas–Fort Worth</span></td><td style="color:#2F8F5B;font-weight:700">Edit</td><td style="color:#C0392B;font-weight:700">Delete</td></tr><tr><td style="padding:2px 0"><span style="color:#1a5fb4;text-decoration:underline;font-weight:700">Chicago</span></td><td style="color:#2F8F5B;font-weight:700">Edit</td><td style="color:#C0392B;font-weight:700">Delete</td></tr><tr><td style="padding:2px 0"><span style="color:#1a5fb4;text-decoration:underline;font-weight:700">Atlanta</span></td><td style="color:#2F8F5B;font-weight:700">Edit</td><td style="color:#C0392B;font-weight:700">Delete</td></tr><tr><td style="padding:2px 0"><span style="color:#1a5fb4;text-decoration:underline;font-weight:700">Corporate — Acme Ltd</span></td><td style="color:#2F8F5B;font-weight:700">Edit</td><td style="color:#C0392B;font-weight:700">Delete</td></tr></table><p style="margin:10px 0 0;font-size:.7rem">or <span style="color:#1a5fb4;text-decoration:underline">Create New Rate Matrix</span></p></div></div><div class="cap"><b>A matrix is a price list.</b> Most companies need one. You add more when a city or a contract customer gets different prices for the same journey.</div></div><div class="la-shot"><div class="lax"><div class="lax-2" style="grid-template-columns:1fr"><div class="lax-panel"><b>You Are Working With "Default" Rate Matrix — Rate Table</b><div class="lax-lst"><i class="sel">DFW - DAL / SED  ($100.00)</i><i>DFW - DAL / SUV  ($120.00)</i><i>DFW - PLANO / SED  ($135.00)</i><i>DAL - DFW / SED  ($100.00)</i><i>LOVE - DAL / SUV  ($95.00)</i></div><div class="lax-btns"><span class="lax-btn">DELETE</span><span class="lax-btn">EDIT RATE</span></div><div class="lax-btns"><span class="lax-btn wide">BATCH EDIT RATES</span></div><div class="lax-fs" style="margin-top:8px"><span class="lg">Add New Rate</span><div class="lax-rows c3"><div class="lax-f"><label>From</label><div class="lax-ctl sel">DFW</div></div><div class="lax-f"><label>To</label><div class="lax-ctl sel">PLANO</div></div><div class="lax-f"><label>Vehicle Type</label><div class="lax-ctl sel">Sports Utility Vehicle</div></div></div><div class="lax-rows c3" style="margin-top:7px"><div class="lax-f"><label>Flat Rate ($)</label><div class="lax-ctl">155.00</div></div><div class="lax-f"><label>Admin Fee ($)</label><div class="lax-ctl">0.00</div></div><div class="lax-f"><label>Fuel Surch (%)</label><div class="lax-ctl">0.000</div></div></div><div style="display:flex;gap:10px;align-items:center;margin-top:8px"><span class="lax-chk on"><i></i>Create Reversed Rate</span><span class="lax-cta" style="flex:1">ADD RATE</span></div></div><p class="lax-note" style="margin-top:8px">For airports use the airport code (DFW, LGA) as the zone code. For every other zone, list all of its city names and zip codes — that list is how a typed address gets matched to a zone.</p></div></div></div><div class="cap"><b>Create Reversed Rate</b> saves you doing the return journey by hand: tick it and DFW → Plano also stores Plano → DFW at the same price.</div></div></div>
 </div>
 <div class="lesson" id="s6-7" data-title="6.7 Hourly, per-passenger and distance rates"><div class="lesson-head"><span class="eyebrow">Lesson 7 of 10</span><h3>6.7 Hourly, per-passenger and distance rates</h3></div>
 <div class="plain"><b>In plain words</b> — These three are "rate × something": rate × hours, rate × passengers, rate × miles. Because the "something" comes from the trip, these prices live on the <strong>vehicle type</strong> (Company Resources › Vehicle Types › edit › <strong>Rates</strong> tab) — six clicks deep, and the place people most often can't find.</div>
@@ -2268,6 +2485,8 @@ body.has-rvbar #fbOpen{display:none}
   <div class="tile"><h4>Distance</h4><p>Per mile or km, in tiers: <span class="mono">first 1 mi $65 · next 19 mi $0 · remaining $1.50</span> gives a $65 minimum that covers 20 miles. Alternatively a flat "minimum mileage charge" per sheet. Result goes into one flat-rate line or a set of multiplier lines (Company Preferences › Reservations › <em>Auto-populate distance total</em> — which is also the on-switch for Google address lookup).</p></div>
 </div>
 <div class="callout warn"><b>Rates are snapshots</b><p>A reservation copies the rate table the moment it is created. Changing a rate later affects new reservations only; press Apply Rate Table again on an old one if it should be re-priced.</p></div>
+
+<div class="la-cols"><div class="la-shot"><div class="lax"><div class="lax-panel" style="border:none"><b>Stored Rates — Multiplier Rate</b><div class="lax-lst"><i class="sel">Per Hour — (Base Rate)</i><i>Per Pass — (Base Rate)</i><i>Extra Stops — (Base Rate)</i><i>Per km — (Base Rate)</i><i class="off">Per Unit — (Base Rate)</i></div><p class="lax-note" style="margin-top:8px">A multiplier rate is a <b>quantity × an amount</b>. The rate itself only says which quantity to use — the amount comes from the price list.</p></div></div><div class="cap">Every one of these is "how many × how much": hours, passengers, extra stops, kilometres.</div></div><div class="la-shot"><div class="lax"><div class="lax-panel" style="border:none"><b>Company Preferences › Reservations</b><div class="lax-prefs"><div class="pr wide" id="m67h"><span class="k">Auto Populate No. of Hrs Into Rate Multiplier</span><span class="lax-ctl sel">Per Hour</span><span class="ap">Applies To</span><span class="lax-ctl sel">Hourly/As Directed</span></div><div class="pr wide" id="m67p"><span class="k">Auto Populate No. of Pax Into Rate Multiplier</span><span class="lax-ctl sel">Per Pass</span><span class="ap">Applies To</span><span class="lax-ctl sel">Airport Shuttle</span></div><div class="pr wide" id="m67s"><span class="k">Auto Populate No. of Stops Into Rate Multiplier</span><span class="lax-ctl sel">Extra Stops</span><span class="ap">Applies To</span><span class="lax-ctl sel">Point-to-Point</span></div><div class="pr wide" id="m67d"><span class="k">Auto Populate Distance Total</span><span class="lax-ctl sel">To one Fixed Rate</span><span class="ap">Applies To</span><span class="lax-ctl sel">Airport Shuttle</span></div></div><div class="lax-walk" id="m67out" style="justify-content:center;gap:10px"><span style="font-size:.72rem">You type <b id="m67q">4</b> in <b id="m67f">Duration</b></span><span class="ar">→</span><span class="st on c2" id="m67r">4 × Per Hour</span><span class="ar">→</span><span class="st on c3" id="m67t">$380.00</span></div></div></div><div class="cap"><b>This is the wiring.</b> The preference is what turns a number you typed on the trip into a line on the price. Without it, the hours sit in the box and never reach the money.</div></div></div>
 </div>
 <div class="lesson" id="s6-8" data-title="6.8 Promo codes, fees and extras"><div class="lesson-head"><span class="eyebrow">Lesson 8 of 10</span><h3>6.8 Promo codes, fees and extras</h3></div>
 <div class="grid g2">
@@ -2276,6 +2495,8 @@ body.has-rvbar #fbOpen{display:none}
   <div class="tile"><h4>Credit-card processing fee</h4><p>Two ways. Everyone pays by card → a <strong>percentage line in Surcharge 4</strong> in the System Rate Manager (e.g. 3%, primary). Only some do → make the line with default 0 and add a <strong>Mandatory misc fee</strong> that applies on the right service/vehicle types, so ORES and the app add it automatically.</p></div>
   <div class="tile"><h4>Child seats &amp; airport meet options</h4><p>Child seat: a multiplier line (default $15 × 0); the reservation's child-seat count fills the quantity when <em>auto-populate child seats</em> is on. Meet options: Company Preferences › Reservations › Airport Meet Option — separate prices and labels for <em>curbside</em> and <em>inside</em> ("Meet &amp; Greet"), shown online and in the back office.</p></div>
 </div>
+
+<div class="la-cols"><div class="la-shot"><div class="lax"><div class="lax-tabs2"><span>Company Settings</span><span>Company Resources</span><span class="on">Rate Management</span><span>List Management</span><span>Custom Forms</span></div><div class="lax-2"><div class="lax-panel"><b>Stored Promo Codes</b><div class="lax-lst"><i class="sel">FIRST</i><i>MAYFLAT</i><i>XMAS26</i></div><div class="lax-btns"><span class="lax-btn">Delete</span><span class="lax-btn">Edit</span></div><div class="lax-btns"><span class="lax-btn wide">Add New Promo Code</span></div></div><div class="lax-panel"><b>Add New Promo Code</b><div class="lax-sub" style="padding:0 0 8px"><span class="on">Promo Codes</span><span>Promo Rates</span><span>Promo Discounts</span></div><div class="lax-fs"><span class="lg">Promo Code Information</span><div class="lax-f"><label>Promo Code &nbsp;<span style="color:#666">Example: PROM or XMAS</span></label><div class="lax-ctl">XMAS26</div></div><div style="margin:7px 0"><span class="lax-chk on"><i></i>Is Discount</span></div><div class="lax-rows c2"><div class="lax-f"><label>Service Type Rule</label><div class="lax-ctl sel">Airport Shuttle</div></div><div class="lax-f"><label>Zip Code Rule</label><div class="lax-ctl">75201</div></div><div class="lax-f"><label>Vehicle Type Rule</label><div class="lax-ctl sel">— NOT ASSIGNED —</div></div><div class="lax-f"><label>Airport Rule</label><div class="lax-ctl sel">DFW</div></div></div><div class="lax-fs" style="margin-top:8px"><span class="lg">Date Rule</span><div style="display:flex;gap:14px;font-size:.7rem"><span class="lax-chk"><i></i>Single Date(s)</span><span class="lax-chk on"><i></i>Date Range</span><span class="lax-chk"><i></i>Always Active</span></div><div class="lax-rows c2" style="margin-top:6px"><div class="lax-f"><div class="lax-ctl">01/12/2026</div></div><div class="lax-f"><div class="lax-ctl">31/12/2026</div></div></div></div></div></div></div></div><div class="cap"><b>A promo code is a set of rules.</b> Every rule you fill in narrows when the code works — this one only discounts airport shuttles out of DFW to 75201, in December.</div></div><div class="la-shot"><div class="lax"><div class="lax-tabs2"><span>Company Settings</span><span>Company Resources</span><span class="on">Rate Management</span><span>List Management</span><span>Custom Forms</span></div><div class="lax-2"><div class="lax-panel"><b>Stored Fees</b><div class="lax-lst"><i class="sel">Late Night / Early Morning fee</i><i>Setup Fee</i><i>Child Seat</i></div><div class="lax-btns"><span class="lax-btn">Delete</span><span class="lax-btn">Edit</span></div><div class="lax-btns"><span class="lax-btn wide">Add New Fee</span></div></div><div class="lax-panel"><b>Add Miscellaneous Rate</b><p class="lax-note">Criteria-based fees. <b>Mandatory</b> fees pop an alert when a trip matches, and are added automatically online. <b>Optional</b> fees are offered to the customer as an upsell. If a rate has both, Mandatory wins.</p><div class="lax-rows c3"><div class="lax-f"><label>Associate with Rate</label><div class="lax-ctl sel">Misc Fee 1</div></div><div class="lax-f"><label>Status</label><div class="lax-ctl sel">ACTIVE</div></div><div class="lax-f" id="f68type"><label>Type</label><div class="lax-ctl sel">Mandatory</div></div></div><div class="lax-rows c2" style="margin-top:7px"><div class="lax-f"><label>Miscellaneous Fee Name</label><div class="lax-ctl">Late Night / Early Morning fee</div></div><div class="lax-f"><label>Miscellaneous Fee Amount</label><div class="lax-ctl">25.00</div></div></div><div class="lax-rows c2" style="margin-top:8px"><div class="lax-fs"><span class="lg">Routing Based Rules</span><div class="lax-f"><label>If routing pick-up information contains</label><div class="lax-ctl">DFW</div></div><div class="lax-f" style="margin-top:6px"><label>If routing drop-off information contains</label><div class="lax-ctl"></div></div></div><div class="lax-fs"><span class="lg">Time Range</span><div class="lax-rows c2"><div class="lax-f"><label>Time From</label><div class="lax-ctl">10:00 PM</div></div><div class="lax-f"><label>Time To</label><div class="lax-ctl">05:00 AM</div></div></div><div class="lax-cta" style="margin-top:7px;padding:3px">Add</div></div></div></div></div></div><div class="cap"><b>A fee that adds itself.</b> Pick-up contains DFW, between 10&nbsp;pm and 5&nbsp;am, $25 — and because it is Mandatory the booking screen raises it before you can save.</div></div></div>
 </div>
 <div class="lesson" id="s6-9" data-title="6.9 Reservation preferences that shape the screen"><div class="lesson-head"><span class="eyebrow">Lesson 9 of 10</span><h3>6.9 Reservation preferences that shape the screen</h3></div>
 <div class="plain"><b>In plain words</b> — These switches change what the reservation screen does while you type. When a trainee says "it didn't do that on my screen yesterday", it is one of these.</div>
@@ -2295,6 +2516,9 @@ body.has-rvbar #fbOpen{display:none}
   <div class="tile"><h4>Email confirmation on first save</h4><p><span class="path">Messaging &amp; Template Settings<i>›</i>General</span>. Most companies turn this off and send confirmations on purpose via Email/Fax.</p></div>
   <div class="tile"><h4>Online booking (ORES) rules</h4><p><span class="path">Company Settings<i>›</i>Online Reservations</span>. Show prices or not, quote/book fallback, accepted payment methods, card required, auto-accept lead time, blackout hours, colours and the embed code for the website.</p></div>
 </div>
+
+<h4 class="tour-h">Tour · The preferences that change the reservation screen</h4>
+<div class="anat" id="tourResPrefs" data-tour="resprefs"><div class="anat-shot lam"><div class="lax"><div class="lax-tabs2"><span class="on">Company Settings</span><span>Company Resources</span><span>Rate Management</span><span>List Management</span><span>Custom Forms</span></div><div class="lax-sub" id="p69sub"><span>General</span><span>Forms, Reports</span><span>Accounts, Calendar, Quotes</span><span class="on">Reservations</span><span>Settle, Receivables, Payables</span></div><div style="padding:10px"><div class="lax-prefs" id="p69list"><div class="pr" id="p69a"><span class="k">Open Reservation Screen as</span><span class="lax-ctl sel">Popup window</span></div><div class="pr" id="p69b"><span class="k">Use auto complete on reservation screen</span><span class="lax-ctl sel">Yes</span></div><div class="pr" id="p69c"><span class="k">Hide Booked By fieldset on the reservation screen</span><span class="lax-ctl sel">No</span></div><div class="pr" id="p69d"><span class="k">Update Pick Up time based on the Arrival flight&rsquo;s ETA and flight offset</span><span class="lax-ctl sel">Yes</span></div><div class="pr" id="p69e"><span class="k">Auto populate DO Time based on Duration value</span><span class="lax-ctl sel">No</span></div><div class="pr" id="p69f"><span class="k">Greeting Sign Default Setting</span><span class="lax-ctl sel">Greeting Sign is NOT Required</span></div><div class="pr" id="p69g"><span class="k">Action on &ldquo;Save Reservation&rdquo;</span><span class="lax-ctl sel">Save &amp; Stay On The Same Screen</span></div><div class="pr" id="p69h"><span class="k">Layout of Trip Notes and Bill To &amp; Pax Notes</span><span class="lax-ctl sel">Tabbed</span></div><div class="pr" id="p69i"><span class="k">Warn user if Car assigned does not match Vehicle Type assigned</span><span class="lax-ctl sel">Yes</span></div><div class="pr" id="p69j"><span class="k">When farming out, sort affiliates by</span><span class="lax-ctl sel">Location, then Name</span></div><div class="pr" id="p69k"><span class="k">Do not allow to save reservations without CC info on Credit Card reservations</span><span class="lax-ctl sel">No</span></div><div class="pr" id="p69l"><span class="k">Airport: Curbside Pickup Fee / Inside Pickup Fee</span><span class="lax-ctl">10 &nbsp;/&nbsp; 15</span></div></div><div class="lax-cta" style="margin-top:8px;width:220px;margin-left:auto;margin-right:auto">Update My Company Preferences</div></div></div></div></div>
 </div>
 <div class="lesson" id="s6-10" data-title="6.10 Knowledge check"><div class="lesson-head"><span class="eyebrow">Lesson 10 of 10</span><h3>6.10 Knowledge check</h3></div><div class="qz" data-quiz="s6">
   <div class="qh"><span class="badge">Knowledge check 06</span><h3>Configuration</h3></div>
@@ -2996,6 +3220,170 @@ makeTour($('tourPrefs'),[
  {t:'Who may change these',el:'#cpBtn',p:'Preferences are <b>company-wide</b> — one change affects every user and every future booking. Agents are usually read-only here; know where they live so you can say &ldquo;that is a preference, not a bug&rdquo; and pass it to a manager.',on:function(){cpOn('');cpSet(['Changed once &rarr; applies to <u>every</u> user','Applies to future bookings, not existing ones','My Office &rsaquo; Company Settings &rsaquo; Company Preferences'])}}
 ],{reset:function(){cpOn('');cpSet(['My Office &rsaquo; Company Settings &rsaquo; Company Preferences'])}})}
 
+
+/* ============================================================
+   Section 5 — dispatch screens recreated from the live system
+   ============================================================ */
+if($('tourDisp'))makeTour($('tourDisp'),[
+ {t:'The four views',el:'#d51g',p:'<b>Grid</b> is the list you work in. <b>Map</b> plots the same trips as pins, <b>Graph</b> lays them out driver by driver, <b>GPS</b> shows the cars moving. Same day, same trips — four ways of looking at them.'},
+ {t:'Grid Setup and Manage Statuses',el:'#d51setup',p:'<b>Grid Setup</b> chooses your columns (lesson 5.4). <b>Manage Statuses</b> renames the statuses and picks their colours. <b>Link Drivers and Cars</b> pairs a driver with the car they normally take, so assigning one fills in the other.'},
+ {t:'The date is the whole board',el:'#d51inc',p:'The board shows <em>one day</em>. Arrows step a day at a time. This is the single most common confusion: a trip that "vanished" is nearly always on another date.'},
+ {t:'Include: what is on the board',b:[16,20,26,10],p:'Six switches. <b>New/Live</b> and <b>Settled</b> are the trip’s life stage; <b>In-House</b>, <b>Farm-In</b> and <b>Farm-Out</b> are whose trip it is; <b>Quotes</b> pulls in things that are not booked yet. Untick one and those trips leave the board — they are not deleted.'},
+ {t:'Quick Search and Advanced Search',el:'#d51q',p:'Quick Search filters the rows already on the board. <b>Advanced Search</b> looks across dates — use it when a trip is genuinely missing rather than filtered out.'},
+ {t:'Trip Count',el:'#d51cnt',p:'How many rows the board is showing right now, after the Include switches and any search. If it does not match what you expect, a filter is on.'},
+ {t:'Colour is the status',el:'#d51tbl',p:'Every row is coloured by its status, and dispatchers read the board by colour long before they read the words. Grey = nobody on it yet. Blue = a driver is chosen. Orange = the passenger is in the car. White = done.'},
+ {t:'Unassigned — needs you',el:'#d51r1',p:'No driver in the last column. This is your work list: everything grey has to become blue before the day starts.'},
+ {t:'Assigned vs dispatched',el:'#d51r2',p:'A driver is chosen, but choosing is not telling. Until you <em>dispatch</em>, the driver has not been notified. Lesson 5.2 walks the whole chain.'},
+ {t:'Customer In Car',el:'#d51r3',p:'The driver tapped this in Driver Anywhere, not you. Live statuses arriving on their own are the point of the board.'},
+ {t:'FMO — a farmed-out trip',el:'#d51r4',p:'Type <b>FMO</b> means an affiliate is driving it. It stays on your board because it is still your customer and your invoice — you just are not the one behind the wheel.'}
+],{});
+
+/* 5.2 — the status chain, walking on its own */
+(function(){
+  var host=$('w52'); if(!host)return;
+  var chips=[].slice.call(host.querySelectorAll('.st')),
+      row=$('w52row'), st=$('w52st'), drv=$('w52drv');
+  var CLS=['s-uns','s-asg','s-asg','s-way','s-car','s-done'];
+  var i=0,timer=null;
+  function paint(k){
+    i=k;
+    chips.forEach(function(c,n){c.classList.toggle('on',n===k)});
+    var c=chips[k];
+    st.textContent=c.dataset.s; drv.textContent=c.dataset.d;
+    row.className=CLS[k];
+  }
+  chips.forEach(function(c,n){c.addEventListener('click',function(){stop();paint(n)})});
+  function stop(){if(timer){clearInterval(timer);timer=null}}
+  function play(){stop();timer=setInterval(function(){paint((i+1)%chips.length)},1800)}
+  paint(0);
+  if('IntersectionObserver' in window){
+    new IntersectionObserver(function(e){e[0].isIntersecting?play():stop()},{threshold:.35}).observe(host);
+  } else play();
+
+/* ============================================================
+   Section 6 — configuration screens recreated from the live system
+   ============================================================ */
+if($('tourRates'))makeTour($('tourRates'),[
+ {t:'Three kinds of rate, one manager',el:'#r65tabs',p:'Everything a price is made of is one of three things. A <b>Fixed Rate</b> is an amount. A <b>Multiplier Rate</b> is a quantity times an amount. A <b>Percentage Rate</b> is a share of something else. Learn these three and the money screen stops being mysterious.'},
+ {t:'Fixed — just an amount',el:'#r65t1',on:function(){rate65(0)},p:'Flat Rate, Meet &amp; Greet, Admin Fee, a parking charge. It does not care how long the trip was or how many people rode. $45 is $45.'},
+ {t:'Multiplier — quantity × amount',el:'#r65t2',on:function(){rate65(1)},p:'Per Hour, Per Passenger, Extra Stops, Per km. The rate says <em>which</em> quantity; the trip supplies the number. Lesson 6.7 is entirely about these.'},
+ {t:'Percentage — a share of something',el:'#r65t3',on:function(){rate65(2)},p:'Gratuity, tax, fuel surcharge, a discount. Percentages are calculated <em>from</em> other lines, which is why the order they sit in matters.'},
+ {t:'Rate Group is the answer to "of what?"',el:'#r65grpf',p:'Every rate belongs to a group: <b>Base Rate</b>, <b>Gratuities</b>, <b>Taxes</b>, <b>Surcharge 1–3</b>, <b>Discount</b>, <b>Miscellaneous</b>. A 20% gratuity is 20% of the Base Rate group — not of the whole invoice. Put a rate in the wrong group and the arithmetic quietly changes.'},
+ {t:'Default Amt',el:'#r65amt',p:'What the rate offers when nobody has said otherwise. Leave it at 0.00 for anything that is always priced per trip, and the reservation screen will simply ask.'},
+ {t:'Primary Rate',el:'#r65flags',p:'Marks the one line that <em>is</em> the fare, as opposed to something added on top. Reports use it to separate what you sold from what you passed through.'},
+ {t:'Configure Rate Order',el:'#r65ord',p:'The order the lines are calculated in. Move a surcharge above the gratuity and the gratuity now includes it. This screen is worth changing carefully and testing with one trip afterwards.'},
+ {t:'Configure Rate Grouping',el:'#r65grp',p:'Which groups exist and what they are called. Most companies never touch it — but it is where the six mysterious "Surcharge 2" labels get real names.'}
+],{reset:function(){rate65(0)}});
+
+function rate65(k){
+  var tabs=['r65t1','r65t2','r65t3'],chks=['r65f1','r65f2','r65f3'];
+  tabs.forEach(function(id,n){var e=$(id);if(e)e.classList.toggle('on',n===k)});
+  chks.forEach(function(id,n){var e=$(id);if(e)e.classList.toggle('on',n===k)});
+  var L=$('r65list'); if(!L)return;
+  var SETS=[
+    ['Flat Rate — (Base Rate)','Hourly Limo — (Base Rate)','OT/Wait Time — (Base Rate)',
+     'Meet N Greet — (Base Rate)','Admin Fee — (Miscellaneous)','Parking — (Miscellaneous)',
+     'Toll/Parking Charge — (Base Rate)'],
+    ['Per Hour — (Base Rate)','Per Pass — (Base Rate)','Extra Stops — (Base Rate)',
+     'Per km — (Base Rate)','Per Unit — (Base Rate)'],
+    ['Std Grat — (Gratuities)','Std Tax 1 — (Taxes)','Std Tax 2 — (Taxes)',
+     'Fuel Surch — (Surcharge 3)','STC Surch — (Surcharge 1)','Discount — (Discount 3)']
+  ];
+  L.innerHTML='<div class="lax-lst">'+SETS[k].map(function(t,n){
+    return '<i'+(n===0?' class="sel"':'')+'>'+t+'</i>'}).join('')+'</div>';
+  var g=$('r65grpf'); if(g)g.querySelector('.lax-ctl').textContent=['Base Rate','Base Rate','Gratuities'][k];
+}
+
+/* 6.7 — the quantity flowing into the price */
+(function(){
+  var host=$('m67out'); if(!host)return;
+  var rows=['m67h','m67p','m67s','m67d'].map($),
+      q=$('m67q'),f=$('m67f'),r=$('m67r'),t=$('m67t');
+  var CASES=[
+    {row:0,q:'4',  f:'Duration (hrs)',   r:'4 × Per Hour',      t:'$380.00'},
+    {row:1,q:'12', f:'No. of Passengers',r:'12 × Per Pass',     t:'$228.00'},
+    {row:2,q:'2',  f:'Extra Stops',      r:'2 × Extra Stops',   t:'$30.00'},
+    {row:3,q:'38', f:'Distance (miles)', r:'38 → one Fixed Rate',t:'$155.00'}
+  ];
+  var i=0,timer=null;
+  function paint(k){
+    i=k;var c=CASES[k];
+    rows.forEach(function(e,n){if(e)e.classList.toggle('hit',n===c.row)});
+    q.textContent=c.q;f.textContent=c.f;r.textContent=c.r;t.textContent=c.t;
+  }
+  function stop(){if(timer){clearInterval(timer);timer=null}}
+  function play(){stop();timer=setInterval(function(){paint((i+1)%CASES.length)},2600)}
+  paint(0);
+  if('IntersectionObserver' in window){
+    new IntersectionObserver(function(e){e[0].isIntersecting?play():stop()},{threshold:.3}).observe(host);
+  } else play();
+})();
+
+/* 6.9 — a tour over the preferences, each one tied to what it changes */
+if($('tourResPrefs'))makeTour($('tourResPrefs'),[
+ {t:'These are not cosmetic',el:'#p69sub',p:'Company Preferences is split into six pages; <b>Reservations</b> is the one that changes the booking screen itself. Every setting here is a decision somebody made once and everybody now lives with.'},
+ {t:'Popup or in-page',el:'#p69a',p:'<b>Open Reservation Screen as</b> — a popup window, or in the page. Popup means the list stays behind it; in-page means the browser Back button behaves normally. Choose once, because muscle memory forms fast.'},
+ {t:'Auto complete',el:'#p69b',p:'Type three letters in Billing Contact and the account list appears. Turning this off is the single quickest way to make reservations painful.'},
+ {t:'Flight ETA moves the pick-up',el:'#p69d',p:'With this on, entering a flight number sets the pick-up time from the live ETA plus your offset. This is why an airport trip’s time sometimes changes on its own — it is not a bug.'},
+ {t:'Drop-off from duration',el:'#p69e',p:'Type a duration and the DO time fills itself in. Useful for hourly work; confusing for transfers, which is why most companies leave it off.'},
+ {t:'Greeting sign default',el:'#p69f',p:'Whether every new trip starts with "sign required" ticked. Set it to match what you do most often — the exception is quicker to untick than the rule is to remember.'},
+ {t:'What Save does',el:'#p69g',p:'Stay on the screen, or go back to the list. Stay is safer while you are learning: you can see that the confirmation number and status really changed.'},
+ {t:'Notes: tabbed or stacked',el:'#p69h',p:'The four kinds of note from lesson 4.7 can sit in tabs or all be visible at once. Stacked means fewer missed notes; tabbed means less scrolling.'},
+ {t:'The car / vehicle-type warning',el:'#p69i',p:'This is the preference behind the warning in lesson 6.4 — putting a Sprinter on a trip that was sold as a sedan will now ask you first. Leave it on.'},
+ {t:'Farm-out ordering',el:'#p69j',p:'When you open the affiliate list to farm a trip out, this decides what you see first. Location first is nearly always right.'},
+ {t:'Card details before saving',el:'#p69k',p:'Set to Yes and a credit-card reservation cannot be saved without the card. Strict, but it is the setting that stops unpaid trips reaching the road.'},
+ {t:'The two airport pick-up fees',el:'#p69l',p:'Curbside and Inside get their own amount, their own label and their own rate to land on. This is how "meet and greet" costs more than "kerbside" without anybody typing a fee.'}
+],{});
+
+})();
+
+/* 5.4 — Grid Setup, one tour with five panels */
+(function(){
+  var root=$('tourGrid'); if(!root)return;
+  var tabs=['g54t1','g54t2','g54t3','g54t4','g54t5'],
+      panes=['g54p1','g54p2','g54p3','g54p4','g54p5'];
+  function show(k){
+    tabs.forEach(function(id,n){var e=$(id);if(e)e.classList.toggle('on',n===k)});
+    panes.forEach(function(id,n){var e=$(id);if(e)e.hidden=(n!==k)});
+  }
+  makeTour(root,[
+   {t:'Five tabs, one Save',el:'#g54tabs',on:function(){show(0)},p:'Everything about how the board looks lives behind these five tabs, and one <b>Update Dispatch Grid Fields</b> button saves all of them. Cancel throws the lot away.'},
+   {t:'Borrow someone else’s layout',b:[3,22,94,12],on:function(){show(0)},p:'<b>Copy Grid Configuration From</b> takes a colleague’s column layout wholesale. The fastest way to set up a new dispatcher: copy the person who trains them.'},
+   {t:'Tick a column, set its width',b:[3,36,94,50],on:function(){show(0)},p:'Every column on the board is one row here: tick to show it, and give it a width in pixels. Untick the ones you never read — a narrower board is a faster board.'},
+   {t:'Routing: fields or one block',b:[3,73,94,10],on:function(){show(0)},p:'You can have the pick-up broken into Name, Addr1, Addr2, City, State, Zip — or ticked as <b>PU Routing as a single block</b>, one wide column with the whole address in it. Airport work usually wants the block; local work wants the fields.'},
+   {t:'Date/Time — and the refresh',el:'#g54p2',on:function(){show(1)},p:'Formats, plus the two settings that matter: <b>Refresh Dispatch Every</b> set to <em>Auto Updates</em> means changed trips appear without you pressing anything, and <b>Grid Day Start/End Time</b> defines where your day begins — set it to 04:00 and a 02:00 airport run stays on the previous day’s board where it belongs.'},
+   {t:'Conflicts — the double-booking guard',el:'#g54p3',on:function(){show(2)},p:'One switch. Turn it on and the system warns you when you put the same driver or the same car on two overlapping trips. There is very little reason to leave it off.'},
+   {t:'My Prefs — only your screen',el:'#g54p4',on:function(){show(3)},p:'Hide statuses you never act on, paint airport runs or VIPs in their own colour, and get driver or passenger phone numbers on hover instead of opening the trip. Nobody else sees your choices.'},
+   {t:'Company Prefs — everyone’s screen',el:'#g54p5',on:function(){show(4)},p:'The flags: unpaid balance, child seat, last-minute booking (you set the window), driver rejected. These are company-wide, so agree them once rather than per person.'}
+  ],{reset:function(){}});
+})();
+
+/* 5.5 — cycle Map / Graph / GPS so all three are seen */
+(function(){
+  var tabs=[['v55b','v55pm'],['v55c','v55pr'],['v55d','v55pp']];
+  if(!$('v55b'))return;
+  var k=0,timer=null;
+  function show(n){
+    k=n;
+    tabs.forEach(function(p,i){
+      var t=$(p[0]),pane=$(p[1]);
+      if(t)t.classList.toggle('on',i===n);
+      if(pane)pane.hidden=(i!==n);
+    });
+  }
+  tabs.forEach(function(p,i){var t=$(p[0]);if(t){t.style.cursor='pointer';
+    t.addEventListener('click',function(){stop();show(i)})}});
+  var ga=$('v55a'); if(ga)ga.style.opacity='.55';
+  function stop(){if(timer){clearInterval(timer);timer=null}}
+  function play(){stop();timer=setInterval(function(){show((k+1)%tabs.length)},4200)}
+  show(0);
+  var host=$('v55pm');
+  if(host&&'IntersectionObserver' in window){
+    new IntersectionObserver(function(e){e[0].isIntersecting?play():stop()},{threshold:.3})
+      .observe(host.parentNode);
+  } else play();
+})();
+
 })();
 
 /* ---------- pricing resolver ---------- */
@@ -3649,13 +4037,17 @@ function saveFile(name,text,mime){
    ===================================================================== */
 /* pass 1 — the specific blocks: cards, panels, animations, tables      */
 var RV_SEL = '.prose,.callout,.plain,.board,.tw,.login-demo,.anat,.qz,.life,.gloss,.tile,'
-           + '.lede > div,.flow,.math,.chain,.demos,.la-panel,.reach,.pf,.mini,'
+           + '.lede > div,.flow,.math,.chain,.demos,.la-panel,.reach,.pf,.mini,.la-shot,'
            + '#explorer,#pathfinder,#reach,#sim,#dboard,#resolver,#dispatchSim,#board';
 /* pass 2 — anything still uncovered: loose paragraphs, lists, headings  */
 var RV_SEL2 = 'p,ul,ol,table,blockquote,h3,h4,.lede,.lesson-head,.sec-head';
 /* never chipped                                                         */
 var RV_SKIP = '.fb,.rv-anchor,.rv-dlg,.lesson-nav,.subnav,.lesson-pager,.anat-side,'
-            + '.tour-h,.fb-send,.ib-top,.ib-filters,#fbBanner,#uxProg';
+            + '.tour-h,.fb-send,.ib-top,.ib-filters,#fbBanner,#uxProg,'
+            /* the recreated Limo Anywhere screens are reviewed as a whole, not part by part */
+            + '.lax,.la-shot .cap,.lax-top,.lax-mods,.lax-tabs2,.lax-bar,.lax-2,.lax-panel,'
+            + '.lax-fs,.lax-prefs,.lax-lst,.lax-gantt,.lax-cal,.lax-map,.lax-gps,.lax-walk,'
+            + '.lax-sub,.lax-btns,.lax-rows,.lax-note,.lax-cta,.lax-chks';
 var RV_ICON = {Suggestion:'\u{1F4A1}',Correction:'✏️',Question:'❓',Screenshot:'\u{1F4F7}'};
 var RV_BLOCKS = [];
 
@@ -3693,6 +4085,10 @@ function rvLabel(el){
   if(c.contains('demos'))return 'Mini demos';
   if(c.contains('la-panel'))return 'Module panel';
   if(c.contains('mini'))return 'Animation';
+  if(c.contains('la-shot')){
+    var cap=el.querySelector('.cap b');
+    return cap ? 'Screen: '+rvTxt(cap,44) : 'Limo Anywhere screen';
+  }
   if(c.contains('tw')||t==='TABLE')return 'Table';
   if(c.contains('board'))return 'Board';
   if(c.contains('anat')||c.contains('login-demo')||c.contains('reach')||c.contains('pf')||
