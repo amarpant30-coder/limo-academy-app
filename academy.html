@@ -4142,9 +4142,32 @@ function rvLabel(el){
     var x=el.querySelector('h4,h5,b,strong');
     return x ? rvTxt(x,54) : 'Card';
   }
+  /* any card that carries its own heading is named by it */
+  var hd=el.querySelector(':scope > h3, :scope > h4, :scope > h5, :scope > h6');
+  if(hd)return rvTxt(hd,54);
   if(t==='H2'||t==='H3'||t==='H4')return 'Heading — '+rvExcerpt(el,46);
   if(t==='UL'||t==='OL')return 'List — '+rvExcerpt(el,46);
   return rvExcerpt(el,60) || 'Block';
+}
+/* A row of cards laid out side by side — .chain, and anything shaped like it —
+   should give each card its own Review button, not one button for the row.
+   Requires a grid/flex container whose children are all headed cards. */
+function rvCardRow(el){
+  var d='';
+  try{ d=getComputedStyle(el).display }catch(e){ return null }
+  if(!/grid|flex/.test(d))return null;
+  var kids=[].slice.call(el.children).filter(function(c){
+    return c.nodeType===1 && !c.classList.contains('rv-anchor');
+  });
+  if(kids.length<2)return null;
+  var tag=kids[0].tagName;
+  if(!/^(DIV|LI|SECTION|ARTICLE)$/.test(tag))return null;
+  var ok=kids.every(function(c){
+    if(c.tagName!==tag)return false;
+    if(!c.querySelector('h3,h4,h5,h6'))return false;
+    return (c.textContent||'').replace(/\s+/g,' ').trim().length>=25;
+  });
+  return ok ? kids : null;
 }
 function rvChipEl(){
   var a=document.createElement('div');a.className='rv-anchor';
@@ -4183,6 +4206,23 @@ function mountChips(){
       if(!hasMedia && (el.textContent||'').replace(/\s+/g,' ').trim().length<20)return;
       seen.push(el);el._rvDone=true;
 
+      var row=rvCardRow(el);
+      if(row){
+        row.forEach(function(card){
+          if(card._rvDone)return;
+          card._rvDone=true;
+          mountOne(card,t,used);
+        });
+        return;
+      }
+      mountOne(el,t,used);
+    });
+  });
+  rvCounts();
+  rvHintOnce();
+}
+
+function mountOne(el,t,used){
       var label=rvLabel(el);
       used[label]=(used[label]||0)+1;
       if(used[label]>1)label=label+' ('+used[label]+')';
@@ -4225,10 +4265,6 @@ function mountChips(){
       chip.addEventListener('click',function(e){
         e.preventDefault();e.stopPropagation();show();rvOpen(rec);
       });
-    });
-  });
-  rvCounts();
-  rvHintOnce();
 }
 function rvCounts(){
   if(!RV_BLOCKS.length)return;
