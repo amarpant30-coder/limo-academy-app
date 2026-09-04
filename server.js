@@ -510,9 +510,28 @@ app.post('/api/done/:id', requireLogin, async (req, res) => {
 
 /* Keep the Google Sheet in step, so the triage workflow you already have
    carries on working. Failures here never block a reviewer. */
+/* The Google Sheet is written by an Apps Script. Apps Script buffers its
+   writes, so two requests that arrive at the same moment can work out the same
+   "next row" and land on top of each other — the script reports success and a
+   row disappears. Measured: 40 comments sent at once, 15 lost, no errors
+   anywhere. So every Sheet write from this server goes through a queue of one:
+   the next request does not start until the previous one has finished and its
+   row is safely written. The reviewer never waits for any of this — their
+   comment is already committed to Postgres before mirroring begins. */
+let sheetQueue = Promise.resolve();
+function queueSheetWrite(fn) {
+  const run = sheetQueue.then(fn, fn);
+  sheetQueue = run.catch(() => {});
+  return run;
+}
+
 function mirror(rec, sess) {
   const url = process.env.SHEET_ENDPOINT;
   if (!url) return Promise.resolve(false);
+  return queueSheetWrite(() => mirrorNow(rec, sess, url));
+}
+
+function mirrorNow(rec, sess, url) {
   const payload = JSON.stringify({ key: sess.name || 'reviewer', items: [Object.assign({}, rec, { name: sess.name })] });
   return fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: payload })
     .then(r => r.text())
@@ -533,7 +552,7 @@ async function retryMirrors() {
   try {
     const { rows } = await pool.query(
       `SELECT id,author,type,section,title,topic,body,shot_data
-         FROM comments WHERE mirrored=FALSE ORDER BY created_at LIMIT 25`);
+         FROM comments WHERE mirrored=FALSE ORDER BY created_at LIMIT 100`);
     for (const r of rows) {
       await mirror({ id: r.id, type: r.type, section: r.section, title: r.title,
                      topic: r.topic, text: r.body, _shot: r.shot_data || undefined },
@@ -542,7 +561,7 @@ async function retryMirrors() {
     if (rows.length) console.log('retried ' + rows.length + ' unmirrored comment(s)');
   } catch (err) { console.error('mirror retry failed:', err.message); }
 }
-setInterval(retryMirrors, 5 * 60 * 1000).unref();
+setInterval(retryMirrors, 2 * 60 * 1000).unref();
 
 /* Screenshots are served from our own database, so they survive even if the
    Google copy is missing. */
