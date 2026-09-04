@@ -461,9 +461,12 @@ app.post('/api/comments', requireLogin, async (req, res) => {
 
 app.post('/api/done/:id', requireLogin, async (req, res) => {
   const owner = req.session.role === 'owner';
-  await pool.query(
+  const { rowCount } = await pool.query(
     `UPDATE comments SET done=$1 WHERE id=$2 ${owner ? '' : 'AND user_id=$3'}`,
     owner ? [!!req.body.done, req.params.id] : [!!req.body.done, req.params.id, req.session.uid]);
+  /* A reviewer asking about a comment that is not theirs gets the same answer
+     as one asking about a comment that does not exist. */
+  if (!rowCount) return res.status(404).json({ ok: false, error: 'not found' });
   res.json({ ok: true });
 });
 
@@ -514,7 +517,11 @@ app.get('/api/shot/:id', requireLogin, async (req, res) => {
   if (!d) return res.status(404).send('no screenshot');
   const m = /^data:([^;]+);base64,(.*)$/.exec(d);
   if (!m) return res.status(404).send('no screenshot');
-  res.set('Content-Type', m[1]).set('Cache-Control', 'private, max-age=86400')
+  /* No browser caching: on a shared computer the next person to sign in must
+     not be served this image out of the cache instead of a fresh 404. */
+  res.set('Content-Type', m[1])
+     .set('Cache-Control', 'private, no-store, max-age=0')
+     .set('Pragma', 'no-cache')
      .send(Buffer.from(m[2], 'base64'));
 });
 

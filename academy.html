@@ -3671,16 +3671,32 @@ function rvExcerpt(el,n){
   return rvTxt(c,n);
 }
 function rvLabel(el){
-  var c=el.classList;
+  var c=el.classList, t=el.tagName;
   if(el.matches('.lede > .def'))return 'Definition';
   if(el.matches('.lede > .ex'))return 'Example';
   if(el.matches('.lede > .key'))return 'Key points';
+  if(c.contains('lede'))return 'Definition, example and key points';
+  if(c.contains('sec-head')){
+    var h2=el.querySelector('h2');
+    return h2 ? 'Section heading — '+rvTxt(h2,42) : 'Section heading';
+  }
+  if(c.contains('lesson-head')){
+    var h3=el.querySelector('h3');
+    return h3 ? 'Lesson title — '+rvTxt(h3,42) : 'Lesson title';
+  }
   if(c.contains('qz'))return 'Knowledge check';
   if(c.contains('gloss'))return 'Glossary';
   if(c.contains('life'))return 'Life of a trip';
-  if(c.contains('tw'))return 'Table';
+  if(c.contains('math'))return 'Worked price example';
+  if(c.contains('chain'))return 'Who is who';
+  if(c.contains('flow'))return 'Step-by-step flow';
+  if(c.contains('demos'))return 'Mini demos';
+  if(c.contains('la-panel'))return 'Module panel';
+  if(c.contains('mini'))return 'Animation';
+  if(c.contains('tw')||t==='TABLE')return 'Table';
   if(c.contains('board'))return 'Board';
-  if(c.contains('anat')||c.contains('login-demo')||/^(explorer|pathfinder|reach|sim|dboard|resolver|dispatchSim|board)$/.test(el.id)){
+  if(c.contains('anat')||c.contains('login-demo')||c.contains('reach')||c.contains('pf')||
+     /^(explorer|pathfinder|reach|sim|dboard|resolver|dispatchSim|board)$/.test(el.id)){
     var p=el.previousElementSibling;
     while(p&&!/^H[2-5]$/.test(p.tagName)&&!p.classList.contains('tour-h'))p=p.previousElementSibling;
     return p ? rvTxt(p,64) : 'Interactive demo';
@@ -3690,10 +3706,12 @@ function rvLabel(el){
     return b ? rvTxt(b,44) : (c.contains('callout')?'Callout':'Note');
   }
   if(c.contains('tile')){
-    var t=el.querySelector('h4,h5,b,strong');
-    return t ? rvTxt(t,54) : 'Card';
+    var x=el.querySelector('h4,h5,b,strong');
+    return x ? rvTxt(x,54) : 'Card';
   }
-  return rvTxt(el,60) || 'Block';
+  if(t==='H2'||t==='H3'||t==='H4')return 'Heading — '+rvExcerpt(el,46);
+  if(t==='UL'||t==='OL')return 'List — '+rvExcerpt(el,46);
+  return rvExcerpt(el,60) || 'Block';
 }
 function rvChipEl(){
   var a=document.createElement('div');a.className='rv-anchor';
