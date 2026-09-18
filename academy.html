@@ -1452,6 +1452,20 @@ ul.syl-t li{font-size:.79rem;color:var(--ink-2);background:var(--surface-2);
 .life-replay:hover{border-color:var(--accent);color:var(--accent)}
 .life-track{display:flex;align-items:center}
 </style>
+<style>
+/* A real screen from Limo Anywhere, contributed during review. */
+.shot{margin:16px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;
+  background:var(--surface);box-shadow:var(--shadow)}
+.shot img{display:block;width:100%;height:auto;background:#fff}
+.shot figcaption{padding:9px 14px;font-size:.84rem;color:var(--ink-2);line-height:1.45;
+  border-top:1px solid var(--line);background:var(--surface-2)}
+.shot figcaption b{color:var(--ink)}
+.shot .credit{display:block;margin-top:3px;font-size:.74rem;color:var(--ink-3);
+  font-family:var(--mono);letter-spacing:.02em}
+.shot-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0}
+.shot-2 .shot{margin:0}
+@media(max-width:820px){.shot-2{grid-template-columns:1fr}}
+</style>
 <div class="shell">
 <aside class="side">
   <div class="brand"><div class="mark">LA</div><div class="t">GroundOps Academy<small>Agent Training &amp; Certification</small></div></div>
@@ -1871,6 +1885,7 @@ ul.syl-t li{font-size:.79rem;color:var(--ink-2);background:var(--surface-2);
 <tr><td><b>No-show</b></td><td>The car was there; the passenger was not.</td><td>Nothing without approval. No-show billing is a client policy decision.</td></tr>
 </table></div>
 
+<figure class="shot"><img src="/asset/la-status-list" alt="The real list, in Limo Anywhere. The bold lines are what the system calls the stage; the indented line under each is the status you will actually see on the board. Note that Offered to Driver shows as <em>Dispatched</em> and Driver Is Waiting At Pickup shows as <em>Arrived</em> — which is why those two words mean what they mean." loading="lazy"><figcaption><b>The real list, in Limo Anywhere.</b> The bold lines are what the system calls the stage; the indented line under each is the status you will actually see on the board. Note that <b>Offered to Driver</b> shows as <em>Dispatched</em> and <b>Driver Is Waiting At Pickup</b> shows as <em>Arrived</em> — which is why those two words mean what they mean.<span class="credit">Screenshot contributed by Farhan during review</span></figcaption></figure>
 <h4>Driver statuses</h4>
 <p class="muted">These arrive from the driver's phone, not from the office. When a passenger asks "where is my car?", this is the sequence you are reading.</p>
 <div class="flow">
@@ -3112,6 +3127,8 @@ ul.syl-t li{font-size:.79rem;color:var(--ink-2);background:var(--surface-2);
     <div class="pf-cur" id="rsCur"></div>
   </div>
 </div>
+
+<figure class="shot"><img src="/asset/la-quick-rate" alt="Quick Rate Lookup. The fastest of the three routes: dates, times, pickup and drop-off with address autocomplete, then a vehicle list with a price against each. From here Book makes it a reservation and Quote makes it a quote — same information, different commitment." loading="lazy"><figcaption><b>Quick Rate Lookup.</b> The fastest of the three routes: dates, times, pickup and drop-off with address autocomplete, then a vehicle list with a price against each. From here <b>Book</b> makes it a reservation and <b>Quote</b> makes it a quote — same information, different commitment.<span class="credit">Screenshot contributed by Farhan during review</span></figcaption></figure>
 <nav class="subnav lesson-nav" aria-label="Creating &amp; managing reservations lessons"><a href="#s12-1" data-lesson="s12-1">12.1<span> Anatomy of the screen</span></a><a href="#s12-2" data-lesson="s12-2">12.2<span> Try it</span></a><a href="#s12-3" data-lesson="s12-3">12.3<span> Routing</span></a><a href="#s12-4" data-lesson="s12-4">12.4<span> Service type → vehicl…</span></a><a href="#s12-5" data-lesson="s12-5">12.5<span> Payment info</span></a><a href="#s12-6" data-lesson="s12-6">12.6<span> Notes</span></a><a href="#s12-7" data-lesson="s12-7">12.7<span> Extras</span></a><a href="#s12-8" data-lesson="s12-8">12.8<span> Putting a driver and…</span></a><a href="#s12-9" data-lesson="s12-9">12.9<span> Copy and recurring tr…</span></a><a href="#s12-10" data-lesson="s12-10">12.10<span> Round trips and conti…</span></a><a href="#s12-11" data-lesson="s12-11">12.11<span> Linking trips and Rep…</span></a><a href="#s12-12" data-lesson="s12-12">12.12<span> Knowledge check</span></a></nav>
 <div class="lessons">
 <div class="lesson" id="s12-1" data-title="12.1 Anatomy of the screen"><div class="lesson-head"><span class="eyebrow">Lesson 1 of 12</span><h3>12.1 Anatomy of the screen</h3></div>
@@ -3308,6 +3325,8 @@ ul.syl-t li{font-size:.79rem;color:var(--ink-2);background:var(--surface-2);
   <div class="step"><span class="k">WHY</span><b>Separate legs give you…</b><span>a status per leg on Dispatch, correct pricing per leg, flight tracking on the airport leg, and Replicate Changes across the linked set if the passenger's details change.</span></div>
 </div>
 <div class="callout info"><b>Or make it hourly</b><p>If the client wants the car all day at their disposal, book one <em>hourly / as-directed</em> reservation for the block instead of separate legs — the rate is per hour and the drop-off is optional.</p></div>
+
+<div class="shot-2"><figure class="shot"><img src="/asset/la-copy-reservation" alt="The Copy Reservation dialog. The left side is the trip you are copying; the right side builds the copies — daily, weekly, monthly or same-day, how many occurrences, and whether to link them to the original." loading="lazy"><figcaption><b>The Copy Reservation dialog.</b> The left side is the trip you are copying; the right side builds the copies — daily, weekly, monthly or same-day, how many occurrences, and whether to link them to the original.<span class="credit">Screenshot contributed by Farhan during review</span></figcaption></figure><figure class="shot"><img src="/asset/la-copy-confirm" alt="What you get back. A new trip number, and a link straight to it. The copy appears under Live Reservations — it is a real trip, not a draft." loading="lazy"><figcaption><b>What you get back.</b> A new trip number, and a link straight to it. The copy appears under Live Reservations — it is a real trip, not a draft.<span class="credit">Screenshot contributed by Farhan during review</span></figcaption></figure></div>
 </div>
 <div class="lesson" id="s12-10" data-title="12.10 Round trips and continuation trips"><div class="lesson-head"><span class="eyebrow">Lesson 10 of 12</span><h3>12.10 Round trips and continuation trips</h3></div>
 <div class="lede"><div class="def"><div class="lb"><i>≡</i>Definition</div><p>A <strong>round trip</strong> is the return leg, created from a saved outbound trip with the pick-up and drop-off already swapped. It is a <em>second reservation</em>, not a second half of the first one.</p></div><div class="ex"><div class="lb"><i>»</i>Example</div><p>Home &rarr; DFW on 16 Sep (Conf# 15501). Round Trip &rarr; DFW &rarr; Home on 19 Sep with flight AA 1180 (Conf# 15502), linked to the first.</p></div><div class="key"><div class="lb"><i>✓</i>Key points</div><ul><li>Save the outbound <strong>first</strong> — Round Trip needs a saved trip</li><li>You must ask for the return date and time</li><li>An airport return needs its own airline and flight number</li><li>Two confirmation numbers, each with its own rate, driver and status</li></ul></div></div>
@@ -3757,6 +3776,8 @@ ul.syl-t li{font-size:.79rem;color:var(--ink-2);background:var(--surface-2);
 <nav class="subnav lesson-nav" aria-label="Dispatch fundamentals lessons"><a href="#s16-1" data-lesson="s16-1">16.1<span> The dispatch board</span></a><a href="#s16-2" data-lesson="s16-2">16.2<span> Set up your grid</span></a><a href="#s16-3" data-lesson="s16-3">16.3<span> Knowledge check</span></a></nav>
 <div class="lessons">
 <div class="lesson" id="s16-1" data-title="16.1 The dispatch board"><div class="lesson-head"><span class="eyebrow">Lesson 1 of 3</span><h3>16.1 The dispatch board</h3></div>
+<figure class="shot"><img src="/asset/la-board-status" alt="A live board. One row per trip, colour by status — here a completed airport arrival, an assigned point-to-point, one circling and one on the way. Reading this at a glance is most of light dispatch." loading="lazy"><figcaption><b>A live board.</b> One row per trip, colour by status — here a completed airport arrival, an assigned point-to-point, one circling and one on the way. Reading this at a glance is most of light dispatch.<span class="credit">Screenshot contributed by Farhan during review</span></figcaption></figure>
+
 <div class="prose">
 <p>Click the <strong>Dispatch</strong> icon and you get one table: every trip for the selected date, one row each. Change the date at the top to see another day. The row shows the essentials — confirmation number, pickup time, status, passenger, pickup and drop-off, vehicle type, driver and car — and its colour tells you the status at a glance (your company picks the colours).</p>
 </div>
@@ -4142,6 +4163,7 @@ ul.syl-t li{font-size:.79rem;color:var(--ink-2);background:var(--surface-2);
 </div>
 <div class="callout"><b>Accepted does not mean moving</b><p>A trip can sit at <b>Assigned</b> for hours. It only tells you a driver said yes. The status that means a car is actually in motion is <b>On the way</b> — and on an early pickup, that is the one you watch for.</p></div>
 
+<div class="shot-2"><figure class="shot"><img src="/asset/la-da-upcoming" alt="What the driver sees. The Upcoming tab in Driver Anywhere: the trip card carries the flight, the terminal and gate, the pickup and drop-off and the assigned vehicle. Change Status and Start Trip are the two buttons that drive everything you read on the board." loading="lazy"><figcaption><b>What the driver sees.</b> The <em>Upcoming</em> tab in Driver Anywhere: the trip card carries the flight, the terminal and gate, the pickup and drop-off and the assigned vehicle. <b>Change Status</b> and <b>Start Trip</b> are the two buttons that drive everything you read on the board.<span class="credit">Screenshot contributed by Farhan during review</span></figcaption></figure><figure class="shot"><img src="/asset/la-da-setstatus" alt="Setting a status from the phone. The driver picks the next status here — this is the tap that turns a row on your board from Assigned to On the way, usually within seconds." loading="lazy"><figcaption><b>Setting a status from the phone.</b> The driver picks the next status here — this is the tap that turns a row on your board from <em>Assigned</em> to <em>On the way</em>, usually within seconds.<span class="credit">Screenshot contributed by Farhan during review</span></figcaption></figure></div>
 <h4>When the driver is not using the app</h4>
 <p class="muted">Some drivers are not set up on Driver Anywhere, some refuse to use it, and some have a dead phone at 04:00. The trip still needs a truthful status, because everything downstream — the passenger's answer, the settlement, the invoice — reads from it.</p>
 <div class="tw"><table>
@@ -4155,6 +4177,8 @@ ul.syl-t li{font-size:.79rem;color:var(--ink-2);background:var(--surface-2);
 </table></div>
 <div class="callout"><b>Always mark a hand-entered status as hand-entered</b><p>A status you set from a phone call and a status the driver tapped in the app look identical on the board. Note the source and the time in the dispatch notes every time you set one by hand. When a trip is queried a week later, "Arrived 05:28 — set by agent, per driver's call" is evidence; an unexplained status is not.</p></div>
 
+<figure class="shot"><img src="/asset/la-grid-assigned" alt="And what you see when they accept. The row’s status changes to Driver-assigned. Until that happens, the trip has been offered and nothing more." loading="lazy"><figcaption><b>And what you see when they accept.</b> The row’s status changes to <em>Driver-assigned</em>. Until that happens, the trip has been offered and nothing more.<span class="credit">Screenshot contributed by Farhan during review</span></figcaption></figure>
+<div class="shot-2"><figure class="shot"><img src="/asset/la-manual-row" alt="Setting it by hand. Open the row’s inline controls and you can set Trip Status, Vehicle Type, Primary Driver and Primary Car yourself — this is the panel you use when a driver is phoning their updates in." loading="lazy"><figcaption><b>Setting it by hand.</b> Open the row’s inline controls and you can set Trip Status, Vehicle Type, Primary Driver and Primary Car yourself — this is the panel you use when a driver is phoning their updates in.<span class="credit">Screenshot contributed by Farhan during review</span></figcaption></figure><figure class="shot"><img src="/asset/la-manual-car" alt="Picking the car. The Primary Car list is the operator’s actual fleet. Assigning a car that does not match the booked vehicle type is a common source of later disputes, so read both fields before you confirm." loading="lazy"><figcaption><b>Picking the car.</b> The Primary Car list is the operator’s actual fleet. Assigning a car that does not match the booked vehicle type is a common source of later disputes, so read both fields before you confirm.<span class="credit">Screenshot contributed by Farhan during review</span></figcaption></figure></div>
 <h4>When the trip is farmed out</h4>
 <p class="muted">On a farm-out there is no driver of yours and no app at all. The affiliate has the car, and their system does not talk to your board unless the work came through LA Net.</p>
 <div class="grid g2">
@@ -4604,6 +4628,7 @@ ul.syl-t li{font-size:.79rem;color:var(--ink-2);background:var(--surface-2);
 <tr><td>12</td><td><b>Notes and documentation</b></td><td>Anything the driver or an agent recorded that explains a variance. If a trip looks odd and nothing explains it, that is a finding.</td></tr>
 </table></div>
 
+<figure class="shot"><img src="/asset/la-da-finalize" alt="Where checks 7 to 9 come from. The driver’s <em>Finalize</em> screen in Driver Anywhere: extra stops, notes, and the costs they enter by hand — tolls, parking and miscellaneous fees. Everything you are verifying on a completed ride was typed here, on a phone, usually at the end of a long shift. That is why it is worth checking." loading="lazy"><figcaption><b>Where checks 7 to 9 come from.</b> The driver’s <em>Finalize</em> screen in Driver Anywhere: extra stops, notes, and the costs they enter by hand — tolls, parking and miscellaneous fees. Everything you are verifying on a completed ride was typed here, on a phone, usually at the end of a long shift. That is why it is worth checking.<span class="credit">Screenshot contributed by Farhan during review</span></figcaption></figure>
 <div class="callout"><b>Two directions of error, and both matter</b><p>An undercharged trip costs the operator money. An <em>over</em>charged trip costs them a customer &mdash; and usually an argument, a credit note and a damaged account relationship. Review is not revenue recovery; it is making the invoice true.</p></div>
 
 <h4>What to do with what you find</h4>
@@ -4684,6 +4709,7 @@ ul.syl-t li{font-size:.79rem;color:var(--ink-2);background:var(--surface-2);
   <div class="step"><span class="k">7</span><b>Report the pass</b><span>How many reviewed, how many settled, how many held and why. Clients want the shape of the day, not just the settled count.</span></div>
 </div>
 
+<figure class="shot"><img src="/asset/la-done-unsettled" alt="Where a settlement pass starts. The <em>Done &amp; Unsettled</em> list — every completed trip that has not yet been closed out. This is the list you pull in step 1, and the one that should be shorter at the end of your pass than at the start." loading="lazy"><figcaption><b>Where a settlement pass starts.</b> The <em>Done &amp; Unsettled</em> list — every completed trip that has not yet been closed out. This is the list you pull in step 1, and the one that should be shorter at the end of your pass than at the start.<span class="credit">Screenshot contributed by Farhan during review</span></figcaption></figure>
 <div class="callout"><b>Never settle to clear a backlog</b><p>The pressure on a settlement pass is always to finish the list. A held trip is a visible piece of work; a wrongly settled one is invisible until an invoice is disputed six weeks later. Ten settled and four held with reasons is a better shift than fourteen settled.</p></div>
 
 <h4>Documenting each decision</h4>

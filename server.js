@@ -71,6 +71,17 @@ async function initDb() {
       key   TEXT PRIMARY KEY,
       value TEXT NOT NULL DEFAULT ''
     );
+    /* Teaching images that belong to the module itself. Kept separate from
+       comments on purpose: a reviewer's screenshot that we decide to teach from
+       must not disappear when the review inbox is cleared. */
+    CREATE TABLE IF NOT EXISTS assets (
+      id         TEXT PRIMARY KEY,
+      mime       TEXT NOT NULL DEFAULT 'image/jpeg',
+      data       TEXT NOT NULL,
+      label      TEXT NOT NULL DEFAULT '',
+      credit     TEXT NOT NULL DEFAULT '',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
     ALTER TABLE comments ADD COLUMN IF NOT EXISTS shot_data TEXT NOT NULL DEFAULT '';
     ALTER TABLE comments ADD COLUMN IF NOT EXISTS mirrored  BOOLEAN NOT NULL DEFAULT FALSE;
   `);
@@ -630,6 +641,51 @@ app.get('/api/shot/:id', requireLogin, async (req, res) => {
      .set('Cache-Control', 'private, no-store, max-age=0')
      .set('Pragma', 'no-cache')
      .send(Buffer.from(m[2], 'base64'));
+});
+
+/* ------------------------------------------------------------- module images
+   Assets are the screenshots the training module itself teaches from. They are
+   uploaded once by the owner and then referenced as /asset/<id> from the page,
+   which keeps academy.html small and means clearing the review inbox can never
+   break an image in a lesson. */
+app.post('/admin/assets', requireLogin, requireOwner, async (req, res) => {
+  const items = Array.isArray(req.body.items) ? req.body.items : [req.body];
+  const saved = [], failed = [];
+  for (const a of items.slice(0, 40)) {
+    const id = String(a.id || '').trim();
+    if (!/^[a-z0-9][a-z0-9-]{1,60}$/.test(id)) { failed.push([a.id, 'bad id']); continue; }
+    const m = /^data:(image\/[a-z+]+);base64,(.*)$/i.exec(String(a.data || ''));
+    if (!m) { failed.push([id, 'not an image data URL']); continue; }
+    if (m[2].length > 4 * 1024 * 1024) { failed.push([id, 'too large']); continue; }
+    try {
+      await pool.query(
+        `INSERT INTO assets (id, mime, data, label, credit) VALUES ($1,$2,$3,$4,$5)
+         ON CONFLICT (id) DO UPDATE
+           SET mime=EXCLUDED.mime, data=EXCLUDED.data,
+               label=EXCLUDED.label, credit=EXCLUDED.credit`,
+        [id, m[1], String(a.data), String(a.label || '').slice(0, 200),
+         String(a.credit || '').slice(0, 120)]);
+      saved.push(id);
+    } catch (e) { failed.push([id, e.message]); }
+  }
+  res.json({ ok: failed.length === 0, saved, failed });
+});
+
+app.get('/asset/:id', requireLogin, async (req, res) => {
+  const { rows } = await pool.query('SELECT mime, data FROM assets WHERE id=$1', [req.params.id]);
+  if (!rows[0]) return res.status(404).send('no such image');
+  const m = /^data:[^;]+;base64,(.*)$/.exec(rows[0].data);
+  if (!m) return res.status(404).send('no such image');
+  /* Assets are immutable for a given id, so they may be cached hard. */
+  res.set('Content-Type', rows[0].mime)
+     .set('Cache-Control', 'private, max-age=604800, immutable')
+     .send(Buffer.from(m[1], 'base64'));
+});
+
+app.get('/admin/assets.json', requireLogin, requireOwner, async (req, res) => {
+  const { rows } = await pool.query(
+    'SELECT id, mime, label, credit, length(data) AS bytes, created_at FROM assets ORDER BY id');
+  res.json({ ok: true, assets: rows });
 });
 
 /* The page reports any send it could not complete. Reports are queued in the
