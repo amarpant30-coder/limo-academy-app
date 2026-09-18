@@ -671,6 +671,40 @@ app.post('/admin/assets', requireLogin, requireOwner, async (req, res) => {
   res.json({ ok: failed.length === 0, saved, failed });
 });
 
+/* Import a module image from the Google Drive copy a reviewer's screenshot was
+   filed to. The fetch happens here rather than in the browser because Drive
+   serves these images without CORS headers, and here rather than by hand because
+   the bytes then never leave the client's own systems. */
+app.post('/admin/assets/import', requireLogin, requireOwner, async (req, res) => {
+  const items = Array.isArray(req.body.items) ? req.body.items : [req.body];
+  const saved = [], failed = [];
+  for (const a of items.slice(0, 40)) {
+    const id = String(a.id || '').trim();
+    const drive = String(a.driveId || '').trim();
+    if (!/^[a-z0-9][a-z0-9-]{1,60}$/.test(id)) { failed.push([a.id, 'bad id']); continue; }
+    if (!/^[A-Za-z0-9_-]{10,80}$/.test(drive)) { failed.push([id, 'bad drive id']); continue; }
+    try {
+      const r = await fetch('https://drive.google.com/thumbnail?id=' + drive + '&sz=w' +
+                            (Number(a.width) || 1400), { redirect: 'follow' });
+      if (!r.ok) { failed.push([id, 'drive said ' + r.status]); continue; }
+      const mime = (r.headers.get('content-type') || '').split(';')[0];
+      if (!/^image\//.test(mime)) { failed.push([id, 'not an image: ' + mime]); continue; }
+      const buf = Buffer.from(await r.arrayBuffer());
+      if (buf.length > 3 * 1024 * 1024) { failed.push([id, 'too large']); continue; }
+      const data = 'data:' + mime + ';base64,' + buf.toString('base64');
+      await pool.query(
+        `INSERT INTO assets (id, mime, data, label, credit) VALUES ($1,$2,$3,$4,$5)
+         ON CONFLICT (id) DO UPDATE
+           SET mime=EXCLUDED.mime, data=EXCLUDED.data,
+               label=EXCLUDED.label, credit=EXCLUDED.credit`,
+        [id, mime, data, String(a.label || '').slice(0, 200),
+         String(a.credit || '').slice(0, 120)]);
+      saved.push([id, buf.length]);
+    } catch (e) { failed.push([id, e.message]); }
+  }
+  res.json({ ok: failed.length === 0, saved, failed });
+});
+
 app.get('/asset/:id', requireLogin, async (req, res) => {
   const { rows } = await pool.query('SELECT mime, data FROM assets WHERE id=$1', [req.params.id]);
   if (!rows[0]) return res.status(404).send('no such image');
