@@ -1818,6 +1818,76 @@ ul.syl-t li{font-size:.85rem;font-weight:550;line-height:1.35;
   :root:not([data-theme="light"]) .sim-guide .stp{color:#FFA98C}
 }
 </style>
+<style>
+/* ---------------------------------------------------------------------------
+   Sidebar legibility.
+   The greys here already passed contrast, so the problem was hierarchy: module
+   names, index numbers and phase labels were all a similar mid-grey at a similar
+   size, the names wrapped for want of width, and the progress circles were so
+   faint the rows looked unfinished. This widens the rail, gives each level its
+   own weight, and makes the state indicator visible.
+   ------------------------------------------------------------------------- */
+.shell{grid-template-columns:300px minmax(0,1fr)}
+@media(max-width:1100px){.shell{grid-template-columns:270px minmax(0,1fr)}}
+
+.side{padding:20px 14px 18px}
+
+/* --- module rows --- */
+.nav a{font-size:.875rem;line-height:1.35;font-weight:600;color:#E6EAF3;
+  padding:9px 10px;gap:10px;grid-template-columns:26px 1fr auto;border-radius:9px}
+.nav a.hassub{grid-template-columns:26px 1fr auto auto}
+.nav a:hover{background:rgba(255,255,255,.09);color:#fff;transform:none}
+
+/* the index reads as an index, not as more text */
+.nav a .n{font-size:.66rem;font-weight:700;color:#9FA9BE;
+  background:rgba(255,255,255,.07);border-radius:5px;
+  padding:3px 0;text-align:center;letter-spacing:.02em}
+.nav a.active .n,.nav a:hover .n{color:#fff;background:rgba(255,255,255,.16)}
+
+/* --- state circle: clearly a control, clearly empty or done --- */
+.nav a .chk{width:15px;height:15px;border:2px solid rgba(255,255,255,.34);
+  position:relative;flex:none}
+.nav a.done .chk{background:var(--accent-3);border-color:var(--accent-3)}
+.nav a.done .chk::after{content:"";position:absolute;left:4px;top:1px;
+  width:4px;height:8px;border:solid #0E1118;border-width:0 2px 2px 0;
+  transform:rotate(45deg)}
+.nav a:hover .chk{border-color:rgba(255,255,255,.55)}
+
+/* --- phase headers --- */
+.nav .ph{padding:20px 10px 7px;font-size:.7rem;letter-spacing:.055em;
+  line-height:1.4;color:#B7C0D4;font-weight:600;text-transform:none;
+  display:block;position:relative}
+.nav .ph::before{content:"";position:absolute;left:0;right:0;top:11px;
+  height:1px;background:rgba(255,255,255,.1)}
+.nav .ph span{display:block;margin-bottom:3px;font-family:var(--mono);
+  font-size:.63rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--accent)}
+.nav .ph:first-of-type{padding-top:8px}
+.nav .ph:first-of-type::before{display:none}
+
+/* --- lessons under an open module --- */
+.nav .sub{padding-left:36px;margin:3px 0 8px}
+.nav .sub a{font-size:.8rem;line-height:1.35;font-weight:500;color:#AFB9CD;
+  padding:5px 9px;border-radius:7px}
+.nav .sub a:hover{color:#fff;background:rgba(255,255,255,.07)}
+.nav .sub a.on{color:#fff;background:rgba(232,85,47,.22);
+  box-shadow:inset 2px 0 0 var(--accent);font-weight:600}
+.nav .sub a.seen{color:#C6CEE0}
+
+/* --- chevron --- */
+.nav a .cv{opacity:.55;font-size:.7rem}
+.nav a:hover .cv,.nav a.active .cv{opacity:1}
+
+/* --- brand and progress --- */
+.brand .t{font-size:1.02rem;font-weight:700;color:#fff}
+.brand .t small{display:block;margin-top:3px;font-size:.6rem;letter-spacing:.1em;
+  color:#9FA9BE;font-weight:600}
+.progress{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);
+  border-radius:12px;padding:12px 14px}
+.progress .lbl{color:#D3DAE8;font-size:.73rem;font-weight:600;letter-spacing:.06em}
+.progress .bar{height:7px;background:rgba(255,255,255,.12)}
+.side .foot{color:#A9B3C7;font-size:.73rem;line-height:1.5}
+</style>
 <div class="shell">
 <aside class="side">
   <div class="brand"><div class="mark">LA</div><div class="t">GroundOps Academy<small>Agent Training &amp; Certification</small></div></div>
