@@ -16,10 +16,14 @@ const crypto = require('crypto');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
+/* Enough for "before, after, and the error", without letting one comment carry
+   a whole album into an 8 MB request body. The browser shrinks each image
+   first, so this is a sanity limit rather than the thing reviewers feel. */
+const MAX_SHOTS = 6;
 
 /* Railway terminates TLS in front of us; needed for secure cookies. */
 app.set('trust proxy', 1);
-app.use(express.json({ limit: '8mb' }));       // screenshots arrive as data URIs
+app.use(express.json({ limit: '32mb' }));      // several screenshots arrive as data URIs
 app.use(express.urlencoded({ extended: false }));
 
 /* ---------------------------------------------------------------- database */
@@ -84,6 +88,31 @@ async function initDb() {
     );
     ALTER TABLE comments ADD COLUMN IF NOT EXISTS shot_data TEXT NOT NULL DEFAULT '';
     ALTER TABLE comments ADD COLUMN IF NOT EXISTS mirrored  BOOLEAN NOT NULL DEFAULT FALSE;
+
+    /* A reviewer usually needs more than one picture to make a point -- the
+       screen before, the screen after, and the error in between. Extra images
+       live here rather than in a second column, so the number of them is not
+       baked into the schema. comments.shot_data still holds the first image,
+       which keeps the Sheet mirror, the export and every older client working
+       exactly as before. */
+    CREATE TABLE IF NOT EXISTS comment_shots (
+      id         SERIAL PRIMARY KEY,
+      comment_id TEXT NOT NULL REFERENCES comments(id) ON DELETE CASCADE,
+      idx        INTEGER NOT NULL DEFAULT 0,
+      data       TEXT NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+    CREATE UNIQUE INDEX IF NOT EXISTS comment_shots_uq ON comment_shots(comment_id, idx);
+  `);
+
+  /* Backfill: every screenshot that arrived before this feature existed becomes
+     image 0 of its comment, so the new code path sees one uniform list and the
+     44 comments already in the database keep their pictures. */
+  await pool.query(`
+    INSERT INTO comment_shots (comment_id, idx, data)
+    SELECT id, 0, shot_data FROM comments
+     WHERE shot_data <> ''
+       AND NOT EXISTS (SELECT 1 FROM comment_shots s WHERE s.comment_id = comments.id AND s.idx = 0)
   `);
 
   /* Owner account. If ADMIN_PASS is set it is applied on every boot, so the
@@ -518,9 +547,11 @@ app.get('/api/me', requireLogin, (req, res) => {
    in the query — never in the browser. */
 app.get('/api/comments', requireLogin, async (req, res) => {
   const owner = req.session.role === 'owner';
-  const sql = `SELECT id,author,type,section,title,topic,body,shot_url,done,created_at,
-                      (shot_data <> '') AS has_shot
-               FROM comments ${owner ? '' : 'WHERE user_id=$1'} ORDER BY created_at`;
+  const sql = `SELECT c.id,c.author,c.type,c.section,c.title,c.topic,c.body,c.shot_url,
+                      c.done,c.created_at,
+                      (c.shot_data <> '') AS has_shot,
+                      (SELECT count(*)::int FROM comment_shots s WHERE s.comment_id=c.id) AS shots
+               FROM comments c ${owner ? '' : 'WHERE c.user_id=$1'} ORDER BY c.created_at`;
   const { rows } = await pool.query(sql, owner ? [] : [req.session.uid]);
   /* If the owner has reset the board, tell the browser when — it uses this to
      drop its own local copies of comments written before that moment. */
@@ -535,6 +566,11 @@ app.get('/api/comments', requireLogin, async (req, res) => {
       id: r.id, name: r.author, type: r.type, section: r.section, title: r.title,
       topic: r.topic, text: r.body,
       shotUrl: r.shot_url || (r.has_shot ? '/api/shot/' + r.id : ''), done: r.done,
+      /* Every image, oldest first. A comment written before this feature has
+         exactly one, so older clients reading shotUrl still see the picture. */
+      shotUrls: r.shots
+        ? Array.from({ length: r.shots }, (_, i) => '/api/shot/' + r.id + '/' + i)
+        : (r.shot_url || r.has_shot ? [r.shot_url || '/api/shot/' + r.id] : []),
       ts: new Date(r.created_at).getTime()
     }))
   });
@@ -545,13 +581,25 @@ app.post('/api/comments', requireLogin, async (req, res) => {
   let saved = 0;
   for (const r of items) {
     if (!r || !r.id) continue;
-    const shot = typeof r._shot === 'string' && r._shot.startsWith('data:') ? r._shot : '';
+    /* _shots is the current shape; _shot is what older tabs still send. A
+       reviewer who has one of each open should not lose an image either way. */
+    const list = (Array.isArray(r._shots) ? r._shots : [r._shot])
+      .filter(u => typeof u === 'string' && u.startsWith('data:'))
+      .slice(0, MAX_SHOTS);
+    const shot = list[0] || '';
     const { rowCount } = await pool.query(
       `INSERT INTO comments (id,user_id,author,type,section,title,topic,body,shot_url,shot_data)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,'',$9) ON CONFLICT (id) DO NOTHING`,
       [String(r.id), req.session.uid, req.session.name || '', r.type || 'Suggestion',
        r.section || '', r.title || '', r.topic || '', r.text || '', shot]);
-    if (rowCount) { saved++; mirror(r, req.session); }
+    if (rowCount) {
+      for (let i = 0; i < list.length; i++) {
+        await pool.query(
+          `INSERT INTO comment_shots (comment_id, idx, data) VALUES ($1,$2,$3)
+           ON CONFLICT (comment_id, idx) DO NOTHING`, [String(r.id), i, list[i]]);
+      }
+      saved++; mirror(r, req.session);
+    }
   }
   /* Only reports success once the rows are committed, so a reviewer is never
      told "sent" for something that is not stored. */
@@ -626,12 +674,23 @@ setInterval(retryMirrors, 2 * 60 * 1000).unref();
 
 /* Screenshots are served from our own database, so they survive even if the
    Google copy is missing. */
-app.get('/api/shot/:id', requireLogin, async (req, res) => {
+async function sendShot(req, res, n) {
   const owner = req.session.role === 'owner';
+  /* The ownership test stays in the join, so a reviewer cannot read another
+     reviewer's image by guessing a comment id and an index. */
   const { rows } = await pool.query(
-    `SELECT shot_data FROM comments WHERE id=$1 ${owner ? '' : 'AND user_id=$2'}`,
-    owner ? [req.params.id] : [req.params.id, req.session.uid]);
-  const d = rows[0] && rows[0].shot_data;
+    `SELECT s.data FROM comment_shots s JOIN comments c ON c.id = s.comment_id
+      WHERE s.comment_id=$1 AND s.idx=$2 ${owner ? '' : 'AND c.user_id=$3'}`,
+    owner ? [req.params.id, n] : [req.params.id, n, req.session.uid]);
+  let d = rows[0] && rows[0].data;
+  if (!d && n === 0) {
+    /* Nothing in comment_shots yet: fall back to the original column, so this
+       route keeps working even if the backfill has not run. */
+    const legacy = await pool.query(
+      `SELECT shot_data FROM comments WHERE id=$1 ${owner ? '' : 'AND user_id=$2'}`,
+      owner ? [req.params.id] : [req.params.id, req.session.uid]);
+    d = legacy.rows[0] && legacy.rows[0].shot_data;
+  }
   if (!d) return res.status(404).send('no screenshot');
   const m = /^data:([^;]+);base64,(.*)$/.exec(d);
   if (!m) return res.status(404).send('no screenshot');
@@ -641,6 +700,14 @@ app.get('/api/shot/:id', requireLogin, async (req, res) => {
      .set('Cache-Control', 'private, no-store, max-age=0')
      .set('Pragma', 'no-cache')
      .send(Buffer.from(m[2], 'base64'));
+}
+/* /api/shot/<id> is image 0 — the address older links and the Sheet already
+   use. /api/shot/<id>/<n> reaches the rest. */
+app.get('/api/shot/:id', requireLogin, (req, res) => sendShot(req, res, 0));
+app.get('/api/shot/:id/:n', requireLogin, (req, res) => {
+  const n = parseInt(req.params.n, 10);
+  if (!(n >= 0 && n < MAX_SHOTS)) return res.status(404).send('no screenshot');
+  return sendShot(req, res, n);
 });
 
 /* ------------------------------------------------------------- module images
@@ -773,7 +840,9 @@ app.post('/admin/retry-mirror', requireLogin, requireOwner, async (req, res) => 
 app.get('/admin/export.json', requireLogin, requireOwner, async (req, res) => {
   const { rows } = await pool.query(
     `SELECT c.id,c.author,c.type,c.section,c.title,c.topic,c.body,c.shot_url,
-            (c.shot_data <> '') AS has_screenshot, c.done, c.mirrored, c.created_at,
+            (c.shot_data <> '') AS has_screenshot,
+            (SELECT count(*)::int FROM comment_shots s WHERE s.comment_id=c.id) AS screenshots,
+            c.done, c.mirrored, c.created_at,
             u.username
        FROM comments c JOIN users u ON u.id=c.user_id ORDER BY c.created_at`);
   res.set('Content-Disposition', 'attachment; filename="academy-comments-' +

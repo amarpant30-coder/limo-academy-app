@@ -1898,6 +1898,36 @@ ul.syl-t li{font-size:.85rem;font-weight:550;line-height:1.35;
   color:#FF7A55;margin-bottom:5px}
 .nav .ph::before{top:12px}
 </style>
+<style>
+/* ---- attached-image strip (review box and feedback panel) -----------------
+   A reviewer attaching three screenshots needs to see which three they picked
+   and be able to drop one without starting the comment again, so each image is
+   shown as a thumbnail carrying its own remove button. */
+.rv-thumbs,.fb-thumbs{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0 2px}
+.rv-th{position:relative;margin:0;width:104px;border:1px solid var(--line,#D9DEE8);
+  border-radius:10px;overflow:hidden;background:#fff;
+  box-shadow:0 1px 2px rgba(16,24,40,.06)}
+.rv-th img{display:block;width:100%;height:68px;object-fit:cover;background:#F2F4F8}
+.rv-th figcaption{font-size:.62rem;line-height:1.3;padding:5px 6px;color:#47516A;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* 24px box: a comfortable target on a touch screen without covering the image */
+.rv-th-x{position:absolute;top:4px;right:4px;width:24px;height:24px;border:0;
+  border-radius:50%;background:rgba(17,20,28,.78);color:#fff;font-size:.74rem;
+  line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.rv-th-x:hover{background:#B23E1A}
+.rv-th-x:focus-visible{outline:2px solid #3D6BE5;outline-offset:2px}
+/* Several images stack down the panel rather than spilling out of it. */
+.fb-att-b img+img{margin-top:8px}
+</style>
+<style>
+/* A slot held while its image is still being shrunk, so the order a reviewer
+   picked is what they see even before the pictures appear. */
+.rv-th.wait{opacity:.65}
+.rv-th-w{height:68px;background:linear-gradient(100deg,#EDF0F5 30%,#F7F9FC 50%,#EDF0F5 70%);
+  background-size:220% 100%;animation:rvth 1.1s linear infinite}
+@keyframes rvth{from{background-position:180% 0}to{background-position:-40% 0}}
+@media (prefers-reduced-motion:reduce){.rv-th-w{animation:none}}
+</style>
 <div class="shell">
 <aside class="side">
   <div class="brand"><div class="mark">LA</div><div class="t">GroundOps Academy<small>Agent Training &amp; Certification</small></div></div>
@@ -7277,6 +7307,19 @@ SEL.forEach(function(sel){
 (function(){
 var TYPES=['Suggestion','Correction','Question','Screenshot'];
 var ALL=[], SHOTS={}, NAME=null, CANSAVE=(typeof claude==='undefined'), STORAGE_OK=true;
+/* Must match MAX_SHOTS in server.js. */
+var MAX_SHOTS=6;
+/* SHOTS holds an array per comment now. Older comments in a reviewer's browser
+   were written with a single _shot, so everything reads through here rather
+   than touching the field directly. */
+function shotsOf(rec){
+  if(!rec)return [];
+  if(Array.isArray(rec._shots))return rec._shots;
+  return rec._shot?[rec._shot]:[];
+}
+function keepShots(rec){
+  var l=shotsOf(rec);if(l.length)SHOTS[rec.id]=l;
+}
 try{NAME=localStorage.getItem('la-review-name')||null}catch(e){STORAGE_OK=false}
 var VERSION='r5';var VERSION_FULL='r5 · Railway · 4 Sep 2026';
 function modal(html,onOpen){
@@ -7343,29 +7386,55 @@ function box(t){
    '<div class="fb-body">'+
    '<div class="fb-types">'+TYPES.map(function(x,i){return '<button type="button" data-t="'+x+'"'+(i===0?' class="on"':'')+'>'+x+'</button>'}).join('')+'</div>'+
    '<textarea placeholder="What should change here? Be specific — quote the sentence or name the field."></textarea>'+
-   '<div class="fb-row"><label class="fb-drop">&#128206; Attach a screenshot<input type="file" accept="image/*" hidden></label>'+
+   '<div class="fb-row"><label class="fb-drop">&#128206; Attach screenshots<input type="file" accept="image/*" multiple hidden></label>'+
    '<button class="fb-btn send" type="button">Send</button><button class="fb-btn ghost clear" type="button">Clear</button>'+
    '<span class="who fb-who">'+whoHTML()+'</span></div>'+
-   '<div class="fb-note">You can also paste an image straight into the box above (Ctrl+V).</div>'+
+   '<div class="fb-thumbs" hidden></div>'+
+   '<div class="fb-note">Attach up to '+MAX_SHOTS+' images — choose several at once, or paste them in one at a time (Ctrl+V).</div>'+
    '<div class="fb-list"></div></div>';
   var head=d.querySelector('.fb-head'),body=d.querySelector('.fb-body'),ta=d.querySelector('textarea'),
       drop=d.querySelector('.fb-drop'),file=drop.querySelector('input'),send=d.querySelector('.send');
-  var kind='Suggestion',shot=null;
+  var kind='Suggestion',shots=[],strip=d.querySelector('.fb-thumbs');
   head.addEventListener('click',function(){d.classList.toggle('open');d.querySelector('.tog').innerHTML=d.classList.contains('open')?'close &#9652;':'open &#9662;'});
   d.querySelectorAll('.fb-types button').forEach(function(b){b.addEventListener('click',function(){
     d.querySelectorAll('.fb-types button').forEach(function(x){x.classList.remove('on')});b.classList.add('on');kind=b.dataset.t})});
   d.addEventListener('click',function(e){if(e.target.classList.contains('fb-rename')){e.stopPropagation();askName()}});
-  function setShot(dataUrl,label){shot=dataUrl;drop.classList.toggle('has',!!dataUrl);
-    drop.firstChild.nodeValue=dataUrl?('✓ '+label+' attached — click to replace'):'📎 Attach a screenshot'}
-  file.addEventListener('change',function(){var f=file.files[0];if(f)shrink(f,function(u){setShot(u,f.name.slice(0,28))})});
-  ta.addEventListener('paste',function(e){var it=(e.clipboardData||{}).items||[];
-    for(var i=0;i<it.length;i++){if(it[i].type.indexOf('image')===0){var f=it[i].getAsFile();if(f){e.preventDefault();shrink(f,function(u){setShot(u,'pasted image')})}}}});
-  d.querySelector('.clear').addEventListener('click',function(){ta.value='';setShot(null)});
+  function drawShots(){
+    drop.classList.toggle('has',!!shots.length);
+    drop.firstChild.nodeValue=shots.length
+      ? ('✓ '+shots.length+' image'+(shots.length===1?'':'s')+' attached — click to add more')
+      : '📎 Attach screenshots';
+    strip.hidden=!shots.length;
+    strip.innerHTML=shots.map(function(x,i){
+      return '<figure class="rv-th'+(x.pending?' wait':'')+'">'+
+             (x.u?'<img alt="'+esc(x.label)+'" src="'+x.u+'">':'<div class="rv-th-w"></div>')+
+             '<figcaption>'+esc(x.pending?'preparing…':x.label)+'</figcaption>'+
+             '<button type="button" class="rv-th-x" data-i="'+i+'" '+
+             'title="Remove this image" aria-label="Remove '+esc(x.label)+'">✕</button></figure>'}).join('');
+    strip.querySelectorAll('.rv-th-x').forEach(function(btn){
+      btn.addEventListener('click',function(){shots.splice(+btn.dataset.i,1);drawShots()})});
+  }
+  function clearShots(){shots.length=0;drawShots()}
+  function tooMany(room){
+    toast(room
+      ? ('Taking the first '+room+' — '+MAX_SHOTS+' images is the limit on one comment.')
+      : ('That is the limit of '+MAX_SHOTS+' images on one comment. Remove one, or send a second comment.'),'bad');
+  }
+  file.addEventListener('change',function(){
+    pickShots(file.files,shots,drawShots,MAX_SHOTS,tooMany);file.value='';
+  });
+  ta.addEventListener('paste',function(e){var it=(e.clipboardData||{}).items||[],fs=[];
+    for(var i=0;i<it.length;i++)if(it[i].type.indexOf('image')===0){
+      var f=it[i].getAsFile();if(f)fs.push(f)}
+    if(fs.length){e.preventDefault();pickShots(fs,shots,drawShots,MAX_SHOTS,tooMany)}
+  });
+  d.querySelector('.clear').addEventListener('click',function(){ta.value='';clearShots()});
   function doSend(){
     var txt=ta.value.trim();
-    submit({id:uid(),topic:t.id,title:t.title,section:t.section,type:kind,text:txt,name:NAME,ts:Date.now(),done:false},shot)
+    submit({id:uid(),topic:t.id,title:t.title,section:t.section,type:kind,text:txt,name:NAME,ts:Date.now(),done:false},
+           shots.map(function(x){return x.u}).filter(Boolean))
       .then(function(){
-        ta.value='';setShot(null);
+        ta.value='';clearShots();
         send.textContent='Saved ✓';send.disabled=true;
         toast('Saved — '+kind.toLowerCase()+' added to "'+t.title+'"');
         var last=d.querySelector('.fb-list .fb-item:last-child');
@@ -7376,7 +7445,9 @@ function box(t){
   }
   send.addEventListener('click',function(){
     var txt=ta.value.trim();
-    if(!txt&&!shot){ta.focus();toast('Type what should change first.','bad');return}
+    if(!txt&&!shots.length){ta.focus();toast('Type what should change first.','bad');return}
+    if(shots.some(function(x){return x.pending})){
+      toast('One moment — an image is still being prepared.','bad');return}
     if(!NAME){askName(function(){doSend()});return}
     send.disabled=true;send.textContent='Saving…';doSend();
   });
@@ -7406,13 +7477,14 @@ function mine(){return MEM_MINE}
 function imported(){return MEM_IMP}
 function localAll(){
   var a=MEM_MINE.concat(MEM_IMP),seen={},out=[];
-  a.forEach(function(r){if(!seen[r.id]){seen[r.id]=1;if(r._shot)SHOTS[r.id]=r._shot;out.push(r)}});
+  a.forEach(function(r){if(!seen[r.id]){seen[r.id]=1;keepShots(r);out.push(r)}});
   /* Fold in what the collector holds: anything new is added, and rows we already
      have locally pick up the server's screenshot link and done state. */
   REMOTE.forEach(function(r){
     if(seen[r.id]){
       out.forEach(function(x){if(x.id===r.id){
         if(r.shotUrl&&!x.shotUrl)x.shotUrl=r.shotUrl;
+        if(r.shotUrls&&r.shotUrls.length&&!(x.shotUrls||[]).length)x.shotUrls=r.shotUrls;
         x.done=r.done;x.sent=true;
       }});
       return;
@@ -7426,7 +7498,7 @@ function importSave(a){MEM_IMP=a;lsSet('la-review-imported',a);storageWarn()}
 function loadStored(){
   var a=lsGet('la-review-local');if(Array.isArray(a))MEM_MINE=a;
   var b=lsGet('la-review-imported');if(Array.isArray(b))MEM_IMP=b;
-  MEM_MINE.concat(MEM_IMP).forEach(function(r){if(r._shot)SHOTS[r.id]=r._shot});
+  MEM_MINE.concat(MEM_IMP).forEach(keepShots);
   storageWarn();
 }
 function storageWarn(){
@@ -7443,7 +7515,7 @@ var ENDPOINT='/api/comments';
 /* Post one comment to Amar's collector. Resolves true if it reached the server. */
 function push(rec){
   if(!ENDPOINT)return Promise.resolve(false);
-  var body=JSON.stringify({key:KEY,items:[rec]});
+  var body=JSON.stringify({key:KEY,items:[rec]});   /* rec carries _shots */
   return fetch(ENDPOINT,{method:'POST',credentials:'same-origin',body:body,headers:{'Content-Type':'application/json'}})
     .then(function(r){return r.text()})
     .then(function(t){
@@ -7492,7 +7564,11 @@ function fetchAll(){
       REMOTE=j.items.filter(function(x){return x&&(x.text||x.shotUrl)}).map(function(x){
         return {id:x.id||('r'+x.ts),topic:x.topic||'',title:x.title||'',section:x.section||'',
                 type:x.type||'Suggestion',text:x.text||'',name:x.name||'Anonymous',
-                ts:x.ts||0,done:!!x.done,shotUrl:x.shotUrl||'',sent:true,remote:true};
+                ts:x.ts||0,done:!!x.done,shotUrl:x.shotUrl||'',
+                /* A server that predates this feature sends no shotUrls; the
+                   single shotUrl then stands in as a one-image list. */
+                shotUrls:(x.shotUrls&&x.shotUrls.length)?x.shotUrls:(x.shotUrl?[x.shotUrl]:[]),
+                sent:true,remote:true};
       });
       ALL=localAll();render();
       return true;
@@ -7510,7 +7586,7 @@ function pruneBefore(cut){
     lsSet(k,keep);changed=true;
     if(k==='la-review-local')MEM_MINE=keep;else MEM_IMP=keep;
   });
-  if(changed){SHOTS={};MEM_MINE.concat(MEM_IMP).forEach(function(r){if(r._shot)SHOTS[r.id]=r._shot});ALL=localAll()}
+  if(changed){SHOTS={};MEM_MINE.concat(MEM_IMP).forEach(keepShots);ALL=localAll()}
 }
 /* Retry anything that never made it (offline earlier, blocked network, older comments). */
 function flush(){
@@ -7564,8 +7640,15 @@ function flushIssues(){
     .catch(function(){});
 }
 function submit(rec,shot){
-  if(shot)rec.shot=rec.id;
-  var a=mine();if(shot){SHOTS[rec.id]=shot;rec._shot=shot}
+  /* Callers may hand over one image or several; normalise to a list here so
+     there is only one shape below this line. */
+  var list=Array.isArray(shot)?shot.filter(Boolean):(shot?[shot]:[]);
+  if(list.length)rec.shot=rec.id;
+  var a=mine();
+  if(list.length){
+    SHOTS[rec.id]=list;rec._shots=list;
+    rec._shot=list[0];   /* kept so an older server still files the first one */
+  }
   rec.sent=false;a.push(rec);localSave(a);ALL=localAll();render();
   return push(rec).then(function(ok){
     markSent(rec.id,ok);
@@ -7591,15 +7674,24 @@ function item(rec,showTopic){
     (showTopic?'<span>· '+esc(rec.title)+'</span>':'')+
     '<span class="acts"><a class="fb-done">'+(rec.done?'reopen':'mark done')+'</a><a class="fb-del">delete</a></span></div>'+
     '<p>'+esc(rec.text)+'</p>';
-  var localSrc=rec.shot?(SHOTS[rec.shot]||''):'';
-  var remoteSrc=rec.shotUrl?driveThumb(rec.shotUrl):'';
-  if(localSrc||remoteSrc){
-    var fname='screenshot-'+String(rec.id).slice(-6)+'.jpg';
+  /* Prefer this browser's own copies (they need no round trip); otherwise use
+     the addresses the server gave us. Either way it is a list. */
+  var local=rec.shot?(SHOTS[rec.shot]||[]):[];
+  if(!Array.isArray(local))local=local?[local]:[];   /* a pre-list cache entry */
+  var srcs=local.length?local
+         :(rec.shotUrls&&rec.shotUrls.length?rec.shotUrls.map(driveThumb)
+         :(rec.shotUrl?[driveThumb(rec.shotUrl)]:[]));
+  if(srcs.length){
+    var n=srcs.length,
+        label=n===1?('screenshot-'+String(rec.id).slice(-6)+'.jpg')
+                   :(n+' screenshots');
     s+='<div class="fb-att">'+
-       '<button type="button" class="fb-att-t"><span class="cv">&#9656;</span> &#128206; '+esc(fname)+'</button>'+
+       '<button type="button" class="fb-att-t"><span class="cv">&#9656;</span> &#128206; '+esc(label)+'</button>'+
        (rec.shotUrl?'<a class="fb-att-x" href="'+esc(rec.shotUrl)+'" target="_blank" rel="noopener">open original</a>':'')+
-       '<div class="fb-att-b" hidden><img alt="attached screenshot" data-src="'+esc(localSrc||remoteSrc)+'"></div>'+
-       '</div>';
+       '<div class="fb-att-b" hidden>'+
+         srcs.map(function(u,i){
+           return '<img alt="attached screenshot '+(i+1)+' of '+n+'" data-src="'+esc(u)+'">'}).join('')+
+       '</div></div>';
   }
   return s+'</div>';
 }
@@ -7619,17 +7711,20 @@ function wire(root,list){
     confirmBox('This comment will be removed from this browser. It cannot be undone.',function(){removeOne(id);toast('Comment deleted')})})});
   root.querySelectorAll('.fb-att').forEach(function(box){
     var head=box.querySelector('.fb-att-t'),body=box.querySelector('.fb-att-b'),
-        img=body.querySelector('img'),cv=head.querySelector('.cv');
+        imgs=[].slice.call(body.querySelectorAll('img')),cv=head.querySelector('.cv');
     head.addEventListener('click',function(){
       var show=body.hidden;
-      if(show&&!img.getAttribute('src'))img.src=img.dataset.src||'';   /* load only when opened */
+      /* load only when opened */
+      if(show)imgs.forEach(function(im){if(!im.getAttribute('src'))im.src=im.dataset.src||''});
       body.hidden=!show;
       cv.innerHTML=show?'&#9662;':'&#9656;';
     });
-    img.addEventListener('click',function(){
-      var z=document.createElement('div');z.className='fb-zoom';
-      z.innerHTML='<img src="'+(img.getAttribute('src')||'')+'">';
-      z.addEventListener('click',function(){z.remove()});document.body.appendChild(z);
+    imgs.forEach(function(img){
+      img.addEventListener('click',function(){
+        var z=document.createElement('div');z.className='fb-zoom';
+        z.innerHTML='<img src="'+(img.getAttribute('src')||'')+'">';
+        z.addEventListener('click',function(){z.remove()});document.body.appendChild(z);
+      });
     });
   });
 }
@@ -7671,24 +7766,41 @@ function exportText(){
   ['Correction','Suggestion','Question','Screenshot'].forEach(function(t){
     var r=rows.filter(function(x){return x.type===t});if(!r.length)return;
     md+='\n\n## '+t+'s ('+r.length+')\n';
-    r.forEach(function(x){md+='\n- **'+x.section+' ‹ '+x.title+'** — '+(x.name||'Anonymous')+', '+when(x.ts)+(x.done?' _(done)_':'')+(x.shot?(x.shotUrl?' — [screenshot]('+x.shotUrl+')':' _(screenshot attached — see the Google Sheet)_'):'')+'\n  \n  '+String(x.text).replace(/\n/g,'\n  ')+'\n'});
+    r.forEach(function(x){md+='\n- **'+x.section+' ‹ '+x.title+'** — '+(x.name||'Anonymous')+', '+when(x.ts)+(x.done?' _(done)_':'')+(function(){var n=shotCount(x);if(!n)return '';
+  var w=n===1?'screenshot':(n+' screenshots');
+  return x.shotUrl?' — ['+w+']('+x.shotUrl+')':' _('+w+' attached — see the Google Sheet)_'})()+'\n  \n  '+String(x.text).replace(/\n/g,'\n  ')+'\n'});
   });
   return md;
+}
+function shotCount(x){
+  if(!x)return 0;
+  if(x.shotUrls&&x.shotUrls.length)return x.shotUrls.length;
+  var c=x.shot?SHOTS[x.shot]:null;
+  if(Array.isArray(c))return c.length;
+  return (c||x.shot||x.shotUrl)?1:0;
 }
 function exportCsv(){
   var q=function(s){return '"'+String(s==null?'':s).replace(/"/g,'""')+'"'};
   var shotCell=function(x){
-    if(!x.shot)return '';
-    return x.shotUrl||'attached (image is in the Google Sheet, not in this file)';
+    var n=shotCount(x);if(!n)return '';
+    return (x.shotUrl||'attached (images are in the Google Sheet, not in this file)')+
+           (n>1?' (+'+(n-1)+' more)':'');
   };
-  return 'Type,Section,Topic,Reviewer,When,Status,Screenshot,Comment,ID\n'+
+  return 'Type,Section,Topic,Reviewer,When,Status,Screenshots,Comment,ID\n'+
     ALL.slice().sort(function(a,b){return a.ts-b.ts}).map(function(x){
       return [x.type,x.section,x.title,x.name||'Anonymous',new Date(x.ts).toISOString(),x.done?'done':'open',shotCell(x),x.text,x.id].map(q).join(',')}).join('\n');
 }
 function exportJson(noImages){
   var rows=mine().map(function(x){var o={};for(var k in x)o[k]=x[k];
-    if(noImages){delete o._shot;if(x.shot)o.shotNote='screenshot attached in the reviewer browser'}
-    else if(x.shot&&SHOTS[x.shot])o._shot=SHOTS[x.shot];return o});
+    if(noImages){
+      delete o._shot;delete o._shots;
+      var n=shotCount(x);
+      if(n)o.shotNote=n+' screenshot'+(n===1?'':'s')+' attached in the reviewer browser';
+    } else if(x.shot&&SHOTS[x.shot]){
+      var l=SHOTS[x.shot];if(!Array.isArray(l))l=[l];
+      o._shots=l;o._shot=l[0];
+    }
+    return o});
   return JSON.stringify({format:'la-academy-review',v:1,reviewer:NAME||'Anonymous',exported:Date.now(),items:rows},null,1);
 }
 function importText(txt,thenMsg){
@@ -7717,7 +7829,7 @@ function importFiles(files){
   });
 }
 function sendDialog(rows){
-  var shots=rows.filter(function(r){return r.shot}).length;
+  var shots=rows.reduce(function(n,r){return n+shotCount(r)},0);
   var fname='academy-feedback-'+String(NAME||'anon').replace(/[^A-Za-z0-9]+/g,'-').toLowerCase()+'.json';
   var w=document.createElement('div');w.className='fb-send';
   w.innerHTML='<div class="sd"><h3>Send your feedback to Amar</h3>'+
@@ -8020,7 +8132,7 @@ function rvHintOnce(){
 }
 
 function rvOpen(b){
-  var kind='Suggestion',shot=null;
+  var kind='Suggestion',shots=[];
   var prev=ALL.filter(function(x){return x.title===b.title}).sort(function(x,y){return x.ts-y.ts});
   var excerpt=rvExcerpt(b.el,200);
   var w=document.createElement('div');w.className='rv-dlg';
@@ -8041,10 +8153,11 @@ function rvOpen(b){
         '<textarea placeholder="What should change here? Be specific — quote the sentence or name the field."></textarea>'+
         '<div class="rv-foot">'+
           '<button class="fb-btn rv-send" type="button">Send to Amar</button>'+
-          '<label class="rv-drop">\u{1F4CE} Attach a screenshot<input type="file" accept="image/*" hidden></label>'+
+          '<label class="rv-drop">\u{1F4CE} Attach screenshots<input type="file" accept="image/*" multiple hidden></label>'+
           '<span class="rv-sp">Commenting as <b class="rv-who">'+esc(NAME||'—')+'</b> · <a class="rv-rename">change</a></span>'+
         '</div>'+
-        '<div class="rv-tip">You can paste an image straight into the box with Ctrl+V. Your comment reaches Amar the moment you press Send.</div>'+
+        '<div class="rv-thumbs" hidden></div>'+
+        '<div class="rv-tip">Attach up to '+MAX_SHOTS+' images \u2014 pick several at once, or paste them into the box one at a time with Ctrl+V. Your comment reaches Amar the moment you press Send.</div>'+
         (prev.length?'<div class="rv-prev"><p class="rv-lb">Already noted here ('+prev.length+')</p>'+
            prev.map(function(r){return item(r,false)}).join('')+'</div>':'')+
       '</div>'+
@@ -8065,20 +8178,55 @@ function rvOpen(b){
   w.querySelectorAll('.rv-types button').forEach(function(x){x.addEventListener('click',function(){
     w.querySelectorAll('.rv-types button').forEach(function(y){y.classList.remove('on')});
     x.classList.add('on');kind=x.dataset.t})});
-  function setShot(u,label){
-    shot=u;drop.classList.toggle('has',!!u);
-    drop.firstChild.nodeValue=u?('✓ '+label+' attached — click to replace'):'\u{1F4CE} Attach a screenshot';
+  var strip=w.querySelector('.rv-thumbs');
+  function drawShots(){
+    drop.classList.toggle('has',!!shots.length);
+    drop.firstChild.nodeValue=shots.length
+      ? ('\u2713 '+shots.length+' image'+(shots.length===1?'':'s')+' attached \u2014 click to add more')
+      : '\u{1F4CE} Attach screenshots';
+    strip.hidden=!shots.length;
+    strip.innerHTML=shots.map(function(x,i){
+      return '<figure class="rv-th'+(x.pending?' wait':'')+'">'+
+             (x.u?'<img alt="'+esc(x.label)+'" src="'+x.u+'">':'<div class="rv-th-w"></div>')+
+             '<figcaption>'+esc(x.pending?'preparing…':x.label)+'</figcaption>'+
+             '<button type="button" class="rv-th-x" data-i="'+i+'" '+
+             'title="Remove this image" aria-label="Remove '+esc(x.label)+'">\u2715</button></figure>';
+    }).join('');
+    strip.querySelectorAll('.rv-th-x').forEach(function(btn){
+      btn.addEventListener('click',function(){
+        shots.splice(+btn.dataset.i,1);drawShots();
+      });
+    });
   }
-  file.addEventListener('change',function(){var f=file.files[0];if(f)shrink(f,function(u){setShot(u,f.name.slice(0,26))})});
+  /* Each image is added as it finishes shrinking, so picking eight files fills
+     the strip one by one instead of appearing to hang. */
+  function addShot(u,label){
+    if(shots.length>=MAX_SHOTS){
+      toast('That is the limit of '+MAX_SHOTS+' images on one comment. Remove one, or send a second comment.','bad');
+      return;
+    }
+    shots.push({u:u,label:label});drawShots();
+  }
+  file.addEventListener('change',function(){
+    var fs=[].slice.call(file.files);
+    if(fs.length>MAX_SHOTS-shots.length)
+      toast('Taking the first '+(MAX_SHOTS-shots.length)+' \u2014 '+MAX_SHOTS+' images is the limit on one comment.','bad');
+    fs.slice(0,MAX_SHOTS-shots.length).forEach(function(f){
+      shrink(f,function(u){addShot(u,f.name.slice(0,26))});
+    });
+    file.value='';   /* so picking the same file twice still fires change */
+  });
   ta.addEventListener('paste',function(e){
     var it=(e.clipboardData||{}).items||[];
     for(var i=0;i<it.length;i++){if(it[i].type.indexOf('image')===0){
-      var f=it[i].getAsFile();if(f){e.preventDefault();shrink(f,function(u){setShot(u,'pasted image')})}}}});
+      var f=it[i].getAsFile();
+      if(f){e.preventDefault();shrink(f,function(u){addShot(u,'pasted image '+(shots.length+1))})}}}});
   setTimeout(function(){ta.focus()},120);
 
   function go(){
     submit({id:uid(),topic:b.topic,title:b.title,section:b.section,type:kind,
-            text:ta.value.trim(),name:NAME,ts:Date.now(),done:false},shot)
+            text:ta.value.trim(),name:NAME,ts:Date.now(),done:false},
+           shots.map(function(x){return x.u}).filter(Boolean))
       .then(function(){
         toast('Saved — '+kind.toLowerCase()+' added to “'+b.label+'”');
         rvCounts();close();
@@ -8089,7 +8237,9 @@ function rvOpen(b){
       });
   }
   send.addEventListener('click',function(){
-    if(!ta.value.trim()&&!shot){ta.focus();toast('Type what should change first.','bad');return}
+    if(!ta.value.trim()&&!shots.length){ta.focus();toast('Type what should change first.','bad');return}
+    if(shots.some(function(x){return x.pending})){
+      toast('One moment — an image is still being prepared.','bad');return}
     if(!NAME){askName(function(){send.disabled=true;send.textContent='Saving…';go()});return}
     send.disabled=true;send.textContent='Saving…';go();
   });
