@@ -1691,6 +1691,133 @@ ul.syl-t li{border-radius:99px}
 /* The syllabus is a reference page, not a module: no check to pass, so no circle. */
 .nav a.noquiz .chk{display:none}
 </style>
+<style>
+/* ============================================================================
+   Legibility pass.
+   The secondary grey was measured at 3.05:1 against white — below the 4.5:1
+   minimum for body text — which is what made the LESSONS line and the time
+   estimates hard to read. Both greys are darkened here, and the syllabus page
+   is reworked so a module can be scanned rather than deciphered.
+   ========================================================================== */
+:root{ --ink-2:#47516A; --ink-3:#5E6779; }
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --ink-2:#BAC3D6; --ink-3:#98A1B5; }
+}
+:root[data-theme="dark"]{ --ink-2:#BAC3D6; --ink-3:#98A1B5; }
+
+/* ---- syllabus: module card ---- */
+.syl-m{padding:18px 20px;margin:12px 0}
+.syl-mh h4{font-size:1.14rem;font-weight:700}
+.syl-mh .est{font-size:.82rem;font-weight:700;color:var(--ink-2);
+  background:var(--surface-2);border:1px solid var(--line);
+  border-radius:99px;padding:3px 11px;letter-spacing:.01em;text-transform:none;white-space:nowrap}
+
+/* ---- syllabus: topic pills, readable at a glance ---- */
+ul.syl-t{gap:7px;margin-top:14px}
+ul.syl-t li{font-size:.85rem;font-weight:550;line-height:1.35;
+  color:var(--ink);background:var(--surface-2);
+  border:1px solid var(--line);padding:5px 12px}
+:root[data-theme="dark"] ul.syl-t li{color:#D6DCEA}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) ul.syl-t li{color:#D6DCEA}
+}
+
+/* ---- syllabus: the lessons line was the least readable thing on the page ---- */
+.syl-l{margin-top:14px;padding-top:13px;border-top:1px dashed var(--line);
+  font-size:.88rem;line-height:1.75;color:var(--ink-2)}
+.syl-l b{display:inline-block;color:var(--accent);background:var(--accent-soft);
+  border-radius:6px;padding:2px 8px;margin-right:9px;
+  font-family:var(--mono);font-size:.66rem;font-weight:700;
+  letter-spacing:.11em;text-transform:uppercase;vertical-align:1px}
+.syl-l .ls{white-space:nowrap}
+.syl-l .sep{color:var(--ink-3);padding:0 3px}
+
+/* ---- phase divider, a little louder ---- */
+.syl-ph{margin:42px 0 16px;border-bottom-width:2px}
+.syl-ph h3{font-size:1.32rem;font-weight:700}
+.syl-ph .pn{font-size:.72rem;padding:4px 10px}
+
+/* ---- and the same greys elsewhere ---- */
+.sec-head .est{color:var(--ink-2);font-weight:700}
+.lesson-head .eyebrow{color:var(--accent)}
+.shot figcaption{color:var(--ink-2)}
+.shot .credit{color:var(--ink-3)}
+.muted{color:var(--ink-2)}
+</style>
+<style>
+/* The sidebar is dark, so it must not inherit the light-mode secondary grey —
+   that dropped the phase labels to about 3:1 against the panel. */
+.nav .ph{color:#9AA4B8}
+.nav .ph span{color:var(--accent)}
+.side .foot{color:#9AA4B8}
+.progress .lbl{color:#C3CBDB}
+.nav a{color:#C3CBDB}
+.nav a .n{color:#8B94A7}
+.nav .sub a{color:#A8B2C6}
+.nav .sub a.on{color:#fff}
+.brand .t small{color:#9AA4B8}
+/* keep long lesson lists readable rather than clipped */
+.syl-l{overflow-wrap:break-word}
+</style>
+<style>
+/* ---------------------------------------------------------------------------
+   Accessible accent text.
+   The brand orange measures 3.64:1 on white — fine for a large heading, short
+   of the 4.5:1 body-text minimum for the small labels it was being used on
+   (eyebrows, badges, step counters). Those now use a darker tone of the same
+   hue; the bright orange is kept for fills, borders and large type.
+   ------------------------------------------------------------------------- */
+:root{ --accent-text:#B23E1A; --green-text:#166534; --amber-text:#854D0E; --blue-text:#1D4ED8; }
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --accent-text:#FFA98C; --green-text:#6EE7B7; --amber-text:#FCD34D; --blue-text:#A5C2FF; }
+}
+:root[data-theme="dark"]{
+  --accent-text:#FFA98C; --green-text:#6EE7B7; --amber-text:#FCD34D; --blue-text:#A5C2FF; }
+
+.eyebrow,.lesson-head .eyebrow{color:var(--accent-text)}
+.syl-l b{color:var(--accent-text)}
+.syl-link{color:var(--accent-text)}
+.stp,.sim-guide .stp{color:var(--accent-text)}
+.plain b{color:var(--green-text)}
+.pill.a{color:var(--amber-text)}
+.pill.g{color:var(--green-text)}
+.pill.b{color:var(--blue-text)}
+.callout b{color:var(--ink)}
+
+/* White on orange needs a deeper fill to clear 4.5:1 */
+.syl-ph .pn,.lesson-nav a.on,.rv-chip:hover,.rv-types button.on,
+.qz .badge,.hero .meta b{}
+.syl-ph .pn{background:#B23E1A}
+.lesson-nav a.on{background:#B23E1A;box-shadow:0 4px 14px -4px rgba(178,62,26,.55)}
+.rv-chip:hover{background:#B23E1A}
+.rv-types button.on{background:#B23E1A}
+.qz .badge{background:#B23E1A;color:#fff}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .syl-ph .pn,
+  :root:not([data-theme="light"]) .lesson-nav a.on,
+  :root:not([data-theme="light"]) .rv-types button.on,
+  :root:not([data-theme="light"]) .qz .badge{background:#C2410C}
+}
+/* small on-accent UI labels: keep white but make the type carry its weight */
+.anat-tag,.lam-btn.small,.st{font-weight:700}
+</style>
+<style>
+/* Last legibility corrections, by surface. */
+/* Accent eyebrows on dark panels need the light tone, not the dark one. */
+.hero .eyebrow,.finish .eyebrow,.side .eyebrow{color:#FFB39B}
+/* Step counters inside the guided tours (more specific than the earlier rule). */
+.ld-note .stp,.anat-note .stp,.sim-guide .stp{color:var(--accent-text)}
+/* The lede's coloured labels. */
+.lede .key .lb{color:var(--green-text)}
+.lede .def .lb{color:var(--accent-text)}
+.lede .ex .lb{color:var(--blue-text)}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .ld-note .stp,
+  :root:not([data-theme="light"]) .anat-note .stp,
+  :root:not([data-theme="light"]) .sim-guide .stp{color:#FFA98C}
+}
+</style>
 <div class="shell">
 <aside class="side">
   <div class="brand"><div class="mark">LA</div><div class="t">GroundOps Academy<small>Agent Training &amp; Certification</small></div></div>
@@ -1800,166 +1927,166 @@ ul.syl-t li{border-radius:99px}
 <div class="syl-m" id="syl-s1">
   <div class="syl-mh"><h4><a href="#s1" data-sec="s1">Module 1 — Industry &amp; operational overview</a></h4><span class="est">≈ 40 min</span></div>
   <ul class="syl-t"><li>Where black car and limousine sit in ground transportation</li><li>What the customer is actually buying</li><li>Black car vs. chauffeured service</li><li>Structure of a chauffeured transportation company</li><li>Who books transportation</li><li>Trip types</li><li>Corporate vs. retail customers</li><li>Passenger vs. booking contact</li><li>Travel arrangers</li><li>After-hours operations</li><li>The complete lifecycle of a ride</li><li>Reservation to billing workflow</li><li>Core operating functions</li><li>Technology in daily operations</li><li>Service quality measures</li><li>Industry challenges</li></ul>
-  <div class="syl-l"><b>Lessons</b> Where this industry sits · What operators actually sell · Black car and chauffeured service compared · Who is in the picture · Who books, and what they book · Life of a trip · Reservation to billing: the eight stages · The six operating functions · Corporate, retail and after-hours · What good looks like · Knowledge check</div>
+  <div class="syl-l"><b>Lessons</b> <span class="ls">Where this industry sits</span> <span class="sep">·</span> <span class="ls">What operators actually sell</span> <span class="sep">·</span> <span class="ls">Black car and chauffeured service compared</span> <span class="sep">·</span> <span class="ls">Who is in the picture</span> <span class="sep">·</span> <span class="ls">Who books, and what they book</span> <span class="sep">·</span> <span class="ls">Life of a trip</span> <span class="sep">·</span> <span class="ls">Reservation to billing: the eight stages</span> <span class="sep">·</span> <span class="ls">The six operating functions</span> <span class="sep">·</span> <span class="ls">Corporate, retail and after-hours</span> <span class="sep">·</span> <span class="ls">What good looks like</span> <span class="sep">·</span> <span class="ls">Knowledge check</span></div>
 </div>
 <div class="syl-m" id="syl-s2">
   <div class="syl-mh"><h4><a href="#s2" data-sec="s2">Module 2 — Transportation terminology</a></h4><span class="est">≈ 10 min</span></div>
   <ul class="syl-t"><li>Pickup / drop-off</li><li>Point-to-point</li><li>Airport transfer</li><li>Hourly / as-directed</li><li>Meet &amp; greet</li><li>Wait time</li><li>Grace period</li><li>No-show</li><li>Farm-in / farm-out</li><li>Affiliate</li><li>Passenger</li><li>Booker</li><li>Dispatch</li><li>Trip status</li><li>Confirmation</li><li>Quote</li><li>Reservation</li><li>Settlement / ride closeout</li><li>Groups &amp; events</li><li>Advance reservation</li><li>ASAP</li><li>Base</li><li>Deadhead</li><li>DMC</li><li>Garage time</li><li>Knock-off</li><li>Late cancellation</li><li>POB</li><li>Preferred traveler account</li><li>Recurring / standing order</li><li>STC</li><li>Transfer</li><li>Voucher</li></ul>
-  <div class="syl-l"><b>Lessons</b> The words you will hear on every call · Status and workflow words · Knowledge check</div>
+  <div class="syl-l"><b>Lessons</b> <span class="ls">The words you will hear on every call</span> <span class="sep">·</span> <span class="ls">Status and workflow words</span> <span class="sep">·</span> <span class="ls">Knowledge check</span></div>
 </div>
 <div class="syl-m" id="syl-s3">
   <div class="syl-mh"><h4><a href="#s3" data-sec="s3">Module 3 — Vehicle &amp; service knowledge</a></h4><span class="est">≈ 15 min</span></div>
   <ul class="syl-t"><li>Sedan</li><li>Premium/luxury sedan</li><li>SUV</li><li>Sprinter</li><li>Passenger van</li><li>Stretch limousine</li><li>Mini coach</li><li>Motor coach</li><li>Passenger capacity</li><li>Luggage capacity</li><li>Vehicle limitations</li><li>Special requests</li><li>Accessibility requirements</li><li>Client-specific vehicle requirements</li></ul>
-  <div class="syl-l"><b>Lessons</b> The vehicle classes · Passengers, luggage and the limits that bite · Choosing the right vehicle · Knowledge check</div>
+  <div class="syl-l"><b>Lessons</b> <span class="ls">The vehicle classes</span> <span class="sep">·</span> <span class="ls">Passengers, luggage and the limits that bite</span> <span class="sep">·</span> <span class="ls">Choosing the right vehicle</span> <span class="sep">·</span> <span class="ls">Knowledge check</span></div>
 </div>
 <div class="syl-ph"><span class="pn">Phase 2</span><h3>Customer service &amp; communication</h3></div>
 <div class="syl-m" id="syl-s4">
   <div class="syl-mh"><h4><a href="#s4" data-sec="s4">Module 4 — Answering customer calls</a></h4><span class="est">≈ 30 min</span></div>
   <ul class="syl-t"><li>The approved greeting</li><li>Identifying the caller and the purpose</li><li>Active listening</li><li>Call control</li><li>Searching for existing customers and reservations</li><li>Providing authorized information</li><li>Hold and transfer</li><li>Taking accurate messages</li><li>Verifying contact information</li><li>Documenting the interaction</li><li>Closing the call</li></ul>
-  <div class="syl-l"><b>Lessons</b> The shape of a call · Opening: greeting and identifying the caller · Control, listening and the questions that save time · Hold, transfer and what you may tell a caller · The nine kinds of call · Closing and documenting · Knowledge check</div>
+  <div class="syl-l"><b>Lessons</b> <span class="ls">The shape of a call</span> <span class="sep">·</span> <span class="ls">Opening: greeting and identifying the caller</span> <span class="sep">·</span> <span class="ls">Control, listening and the questions that save time</span> <span class="sep">·</span> <span class="ls">Hold, transfer and what you may tell a caller</span> <span class="sep">·</span> <span class="ls">The nine kinds of call</span> <span class="sep">·</span> <span class="ls">Closing and documenting</span> <span class="sep">·</span> <span class="ls">Knowledge check</span></div>
 </div>
 <div class="syl-m" id="syl-s5">
   <div class="syl-mh"><h4><a href="#s5" data-sec="s5">Module 5 — Email communication</a></h4><span class="est">≈ 20 min</span></div>
   <ul class="syl-t"><li>Monitoring assigned and shared inboxes</li><li>Identifying purpose and urgency</li><li>Responding to reservation inquiries</li><li>Processing changes received by email</li><li>Responding to quote requests</li><li>Sending confirmations and quotes</li><li>Documenting requests requiring follow-up</li><li>Forwarding and escalating</li><li>Client response-time requirements</li></ul>
-  <div class="syl-l"><b>Lessons</b> Working a shared inbox · Reading an email for purpose and urgency · Writing the reply · Four worked examples · Knowledge check</div>
+  <div class="syl-l"><b>Lessons</b> <span class="ls">Working a shared inbox</span> <span class="sep">·</span> <span class="ls">Reading an email for purpose and urgency</span> <span class="sep">·</span> <span class="ls">Writing the reply</span> <span class="sep">·</span> <span class="ls">Four worked examples</span> <span class="sep">·</span> <span class="ls">Knowledge check</span></div>
 </div>
 <div class="syl-m" id="syl-s6">
   <div class="syl-mh"><h4><a href="#s6" data-sec="s6">Module 6 — Messages, follow-up &amp; escalation</a></h4><span class="est">≈ 15 min</span></div>
   <ul class="syl-t"><li>Taking a complete message</li><li>Caller name and company</li><li>Callback information</li><li>Reason for the call</li><li>Determining urgency</li><li>Identifying the recipient</li><li>Documenting actions already taken</li><li>Routing the message</li><li>Escalating urgent matters</li></ul>
-  <div class="syl-l"><b>Lessons</b> What a complete message contains · Judging urgency · Resolve it, or escalate it · Knowledge check</div>
+  <div class="syl-l"><b>Lessons</b> <span class="ls">What a complete message contains</span> <span class="sep">·</span> <span class="ls">Judging urgency</span> <span class="sep">·</span> <span class="ls">Resolve it, or escalate it</span> <span class="sep">·</span> <span class="ls">Knowledge check</span></div>
 </div>
 <div class="syl-ph"><span class="pn">Phase 3</span><h3>Reservation &amp; product knowledge</h3></div>
 <div class="syl-m" id="syl-s7">
   <div class="syl-mh"><h4><a href="#s7" data-sec="s7">Module 7 — Reservation fundamentals</a></h4><span class="est">≈ 20 min</span></div>
   <ul class="syl-t"><li>Passenger information</li><li>Booker/contact information</li><li>Pickup date and time</li><li>Pickup location</li><li>Destination</li><li>Additional stops</li><li>Passenger count</li><li>Luggage requirements</li><li>Vehicle type</li><li>Service type</li><li>Flight information</li><li>Special instructions</li><li>Payment method</li><li>Contact information</li><li>Confirmation requirements</li></ul>
-  <div class="syl-l"><b>Lessons</b> The fifteen things every reservation needs · Verifying and reading back · Knowledge check</div>
+  <div class="syl-l"><b>Lessons</b> <span class="ls">The fifteen things every reservation needs</span> <span class="sep">·</span> <span class="ls">Verifying and reading back</span> <span class="sep">·</span> <span class="ls">Knowledge check</span></div>
 </div>
 <div class="syl-m" id="syl-s8">
   <div class="syl-mh"><h4><a href="#s8" data-sec="s8">Module 8 — Airport transportation</a></h4><span class="est">≈ 25 min</span></div>
   <ul class="syl-t"><li>Airport codes</li><li>Arrival vs. departure reservations</li><li>Airline and flight numbers</li><li>Domestic vs. international arrivals</li><li>Flight monitoring</li><li>Meet &amp; greet</li><li>Terminal considerations</li><li>Airport pickup procedures</li><li>Passenger contact information</li><li>Flight delays and changes</li></ul>
-  <div class="syl-l"><b>Lessons</b> Codes, terminals and the shape of an airport job · Arrival or departure: two different reservations · Flight monitoring, delays and changes · Meet &amp; greet or curbside · Knowledge check</div>
+  <div class="syl-l"><b>Lessons</b> <span class="ls">Codes, terminals and the shape of an airport job</span> <span class="sep">·</span> <span class="ls">Arrival or departure: two different reservations</span> <span class="sep">·</span> <span class="ls">Flight monitoring, delays and changes</span> <span class="sep">·</span> <span class="ls">Meet &amp; greet or curbside</span> <span class="sep">·</span> <span class="ls">Knowledge check</span></div>
 </div>
 <div class="syl-m" id="syl-s9">
   <div class="syl-mh"><h4><a href="#s9" data-sec="s9">Module 9 — Rates, charges &amp; policies</a></h4><span class="est">≈ 20 min</span></div>
   <ul class="syl-t"><li>Flat rates</li><li>Hourly rates</li><li>Hourly minimums</li><li>Distance-based rates</li><li>Airport fees</li><li>Tolls</li><li>Parking</li><li>Gratuity</li><li>Fuel surcharges</li><li>Wait time</li><li>Additional stops</li><li>Meet &amp; greet charges</li><li>Cancellation charges</li><li>No-show charges</li><li>Client-specific fees and policies</li></ul>
-  <div class="syl-l"><b>Lessons</b> How a price is built · The add-ons: what goes on top of the base · Wait time, grace, cancellation and no-show · Knowledge check</div>
+  <div class="syl-l"><b>Lessons</b> <span class="ls">How a price is built</span> <span class="sep">·</span> <span class="ls">The add-ons: what goes on top of the base</span> <span class="sep">·</span> <span class="ls">Wait time, grace, cancellation and no-show</span> <span class="sep">·</span> <span class="ls">Knowledge check</span></div>
 </div>
 <div class="syl-ph"><span class="pn">Phase 4</span><h3>Limo Anywhere software training</h3></div>
 <div class="syl-m" id="syl-s10">
   <div class="syl-mh"><h4><a href="#s10" data-sec="s10">Module 10 — Limo Anywhere system orientation</a></h4><span class="est">≈ 25 min</span></div>
   <ul class="syl-t"><li>System login</li><li>Navigation</li><li>Main screens and modules</li><li>Searching</li><li>Customer/account information</li><li>Reservation workflow</li><li>Dispatch views</li><li>Operational views</li><li>User permissions</li><li>System terminology</li></ul>
-  <div class="syl-l"><b>Lessons</b> The product family · Packages: Core, Plus and Black · Logging in · Knowledge check: the product · Explore the toolbar · Map of My Office · Knowledge check: finding your way</div>
+  <div class="syl-l"><b>Lessons</b> <span class="ls">The product family</span> <span class="sep">·</span> <span class="ls">Packages: Core, Plus and Black</span> <span class="sep">·</span> <span class="ls">Logging in</span> <span class="sep">·</span> <span class="ls">Knowledge check: the product</span> <span class="sep">·</span> <span class="ls">Explore the toolbar</span> <span class="sep">·</span> <span class="ls">Map of My Office</span> <span class="sep">·</span> <span class="ls">Knowledge check: finding your way</span></div>
 </div>
 <div class="syl-m" id="syl-s11">
   <div class="syl-mh"><h4><a href="#s11" data-sec="s11">Module 11 — Customer &amp; account management</a></h4><span class="est">≈ 15 min</span></div>
   <ul class="syl-t"><li>Search existing customers and passengers</li><li>Search corporate accounts</li><li>Identify the correct account</li><li>Review passenger information</li><li>Review account requirements</li><li>Review billing requirements</li><li>Review customer preferences</li><li>Review account notes</li><li>Avoid duplicate profiles</li></ul>
-  <div class="syl-l"><b>Lessons</b> The &quot;who&quot; column and the account model · Finding the right account, and not making a second one · Knowledge check</div>
+  <div class="syl-l"><b>Lessons</b> <span class="ls">The &quot;who&quot; column and the account model</span> <span class="sep">·</span> <span class="ls">Finding the right account, and not making a second one</span> <span class="sep">·</span> <span class="ls">Knowledge check</span></div>
 </div>
 <div class="syl-m" id="syl-s12">
   <div class="syl-mh"><h4><a href="#s12" data-sec="s12">Module 12 — Creating &amp; managing reservations</a></h4><span class="est">≈ 60 min</span></div>
   <ul class="syl-t"><li>Create reservations</li><li>Select the correct customer/account</li><li>Enter passenger information</li><li>Select service and vehicle type</li><li>Enter pickup/drop-off locations</li><li>Add stops</li><li>Enter flight information</li><li>Add special instructions</li><li>Review pricing</li><li>Review payment requirements</li><li>Send confirmations</li><li>Search existing reservations</li><li>Modify reservations</li><li>Cancel reservations</li></ul>
-  <div class="syl-l"><b>Lessons</b> Anatomy of the screen · Try it: the guided simulator · Routing: pickups, stops, waits and drop-offs · Service type → vehicle type → price · Payment info: how the trip gets paid · Notes: four kinds, and who reads them · Extras: passengers, signs, seats and labels · Putting a driver and a car on the trip · Copy and recurring trips · Round trips and continuation trips · Linking trips and Replicate Changes · Knowledge check</div>
+  <div class="syl-l"><b>Lessons</b> <span class="ls">Anatomy of the screen</span> <span class="sep">·</span> <span class="ls">Try it: the guided simulator</span> <span class="sep">·</span> <span class="ls">Routing: pickups, stops, waits and drop-offs</span> <span class="sep">·</span> <span class="ls">Service type → vehicle type → price</span> <span class="sep">·</span> <span class="ls">Payment info: how the trip gets paid</span> <span class="sep">·</span> <span class="ls">Notes: four kinds, and who reads them</span> <span class="sep">·</span> <span class="ls">Extras: passengers, signs, seats and labels</span> <span class="sep">·</span> <span class="ls">Putting a driver and a car on the trip</span> <span class="sep">·</span> <span class="ls">Copy and recurring trips</span> <span class="sep">·</span> <span class="ls">Round trips and continuation trips</span> <span class="sep">·</span> <span class="ls">Linking trips and Replicate Changes</span> <span class="sep">·</span> <span class="ls">Knowledge check</span></div>
 </div>
 <div class="syl-ph"><span class="pn">Phase 5</span><h3>Last-minute requests &amp; operational changes</h3></div>
 <div class="syl-m" id="syl-s13">
   <div class="syl-mh"><h4><a href="#s13" data-sec="s13">Module 13 — Last-minute customer requests &amp; changes</a></h4><span class="est">≈ 20 min</span></div>
   <ul class="syl-t"><li>Last-minute new reservations</li><li>Same-day requests</li><li>Immediate pickup requests</li><li>Last-minute pickup-time changes</li><li>Pickup or destination changes</li><li>Flight changes</li><li>Passenger changes</li><li>Vehicle changes</li><li>Additional stops</li><li>Special requests</li><li>Cancellations</li><li>The operational impact check</li></ul>
-  <div class="syl-l"><b>Lessons</b> After it&#x27;s booked: changes and settled trips · The impact check, before you say yes · Same-day and immediate requests · Knowledge check</div>
+  <div class="syl-l"><b>Lessons</b> <span class="ls">After it&#x27;s booked: changes and settled trips</span> <span class="sep">·</span> <span class="ls">The impact check, before you say yes</span> <span class="sep">·</span> <span class="ls">Same-day and immediate requests</span> <span class="sep">·</span> <span class="ls">Knowledge check</span></div>
 </div>
 <div class="syl-ph"><span class="pn">Phase 6</span><h3>Quotes, Groups &amp; Events</h3></div>
 <div class="syl-m" id="syl-s14">
   <div class="syl-mh"><h4><a href="#s14" data-sec="s14">Module 14 — Standard quotes</a></h4><span class="est">≈ 15 min</span></div>
   <ul class="syl-t"><li>Gather the information a quote needs</li><li>Identify service requirements</li><li>Select appropriate vehicle and service</li><li>Review applicable rates</li><li>Prepare the quote</li><li>Verify quote information</li><li>Send the quote</li><li>Document the quote</li><li>Client-specific quote procedures</li></ul>
-  <div class="syl-l"><b>Lessons</b> Quotes: leads that are not yet reservations · Preparing, sending and following up · Knowledge check</div>
+  <div class="syl-l"><b>Lessons</b> <span class="ls">Quotes: leads that are not yet reservations</span> <span class="sep">·</span> <span class="ls">Preparing, sending and following up</span> <span class="sep">·</span> <span class="ls">Knowledge check</span></div>
 </div>
 <div class="syl-m" id="syl-s15">
   <div class="syl-mh"><h4><a href="#s15" data-sec="s15">Module 15 — Groups &amp; event quotes</a></h4><span class="est">≈ 25 min</span></div>
   <ul class="syl-t"><li>Gathering event information</li><li>Event dates and times</li><li>Passenger counts</li><li>Multiple vehicle requirements</li><li>Multiple pickup/drop-off locations</li><li>Airport arrivals and departures</li><li>Shuttle requirements</li><li>Hourly requirements</li><li>Vehicle availability</li><li>Preliminary quotes</li><li>Documenting requirements</li><li>When to escalate to a specialist</li></ul>
-  <div class="syl-l"><b>Lessons</b> What makes a group different · The information a group quote needs · Building a preliminary quote · When to hand it to a specialist · Knowledge check</div>
+  <div class="syl-l"><b>Lessons</b> <span class="ls">What makes a group different</span> <span class="sep">·</span> <span class="ls">The information a group quote needs</span> <span class="sep">·</span> <span class="ls">Building a preliminary quote</span> <span class="sep">·</span> <span class="ls">When to hand it to a specialist</span> <span class="sep">·</span> <span class="ls">Knowledge check</span></div>
 </div>
 <div class="syl-ph"><span class="pn">Phase 7</span><h3>Light dispatch</h3></div>
 <div class="syl-m" id="syl-s16">
   <div class="syl-mh"><h4><a href="#s16" data-sec="s16">Module 16 — Dispatch fundamentals</a></h4><span class="est">≈ 20 min</span></div>
   <ul class="syl-t"><li>The dispatch environment</li><li>Upcoming rides</li><li>Active rides</li><li>Completed rides</li><li>Ride statuses</li><li>Assigned vs. unassigned rides</li><li>Driver assignments</li><li>Vehicle assignments</li><li>Pickup times</li><li>Passenger information</li><li>Dispatch notes</li></ul>
-  <div class="syl-l"><b>Lessons</b> The dispatch board · Set up your grid · Knowledge check</div>
+  <div class="syl-l"><b>Lessons</b> <span class="ls">The dispatch board</span> <span class="sep">·</span> <span class="ls">Set up your grid</span> <span class="sep">·</span> <span class="ls">Knowledge check</span></div>
 </div>
 <div class="syl-m" id="syl-s17">
   <div class="syl-mh"><h4><a href="#s17" data-sec="s17">Module 17 — Tracking the driver</a></h4><span class="est">≈ 20 min</span></div>
   <ul class="syl-t"><li>Review driver status</li><li>Review driver assignment</li><li>Track driver location</li><li>Monitor progress toward pickup</li><li>Review ride status</li><li>Determine whether a driver is late</li><li>Communicate with the driver</li><li>Provide status to the passenger</li><li>Document communications</li><li>Escalate potential service failures</li></ul>
-  <div class="syl-l"><b>Lessons</b> Map, GPS and calendar · Is this driver going to be late? · Telling the passenger · Knowledge check</div>
+  <div class="syl-l"><b>Lessons</b> <span class="ls">Map, GPS and calendar</span> <span class="sep">·</span> <span class="ls">Is this driver going to be late?</span> <span class="sep">·</span> <span class="ls">Telling the passenger</span> <span class="sep">·</span> <span class="ls">Knowledge check</span></div>
 </div>
 <div class="syl-m" id="syl-s18">
   <div class="syl-mh"><h4><a href="#s18" data-sec="s18">Module 18 — Driver wake-up calls</a></h4><span class="est">≈ 12 min</span></div>
   <ul class="syl-t"><li>Reviewing the driver schedule</li><li>Identifying drivers requiring wake-up calls</li><li>Calling at the designated time</li><li>Confirming the driver is awake and aware</li><li>Confirming reporting/pickup time</li><li>Documenting successful contact</li><li>Reattempting contact</li><li>Escalating when a driver cannot be reached</li></ul>
-  <div class="syl-l"><b>Lessons</b> Why the call exists · Making the call · When a driver cannot be reached · Knowledge check</div>
+  <div class="syl-l"><b>Lessons</b> <span class="ls">Why the call exists</span> <span class="sep">·</span> <span class="ls">Making the call</span> <span class="sep">·</span> <span class="ls">When a driver cannot be reached</span> <span class="sep">·</span> <span class="ls">Knowledge check</span></div>
 </div>
 <div class="syl-m" id="syl-s19">
   <div class="syl-mh"><h4><a href="#s19" data-sec="s19">Module 19 — Light dispatch operations</a></h4><span class="est">≈ 25 min</span></div>
   <ul class="syl-t"><li>Review upcoming rides</li><li>Monitor active rides</li><li>Confirm driver/vehicle assignments</li><li>Monitor ride status</li><li>Communicate routine information to drivers</li><li>Communicate status to passengers</li><li>Assist with passenger/driver connections</li><li>Review flight information</li><li>Identify late rides</li><li>Document dispatch communications</li><li>Escalate service exceptions</li><li>Driver Anywhere status flow</li><li>Manual status entry when a driver is not using the app</li><li>Farmed-out trips with no status feed</li></ul>
-  <div class="syl-l"><b>Lessons</b> Dispatching: offering vs assigning a driver · Assigning and dispatching a driver · Try it: dispatch a trip · The boundary of light dispatch · Manual dispatch: no app, or farmed out · Knowledge check</div>
+  <div class="syl-l"><b>Lessons</b> <span class="ls">Dispatching: offering vs assigning a driver</span> <span class="sep">·</span> <span class="ls">Assigning and dispatching a driver</span> <span class="sep">·</span> <span class="ls">Try it: dispatch a trip</span> <span class="sep">·</span> <span class="ls">The boundary of light dispatch</span> <span class="sep">·</span> <span class="ls">Manual dispatch: no app, or farmed out</span> <span class="sep">·</span> <span class="ls">Knowledge check</span></div>
 </div>
 <div class="syl-ph"><span class="pn">Phase 8</span><h3>Emergency response &amp; escalation</h3></div>
 <div class="syl-m" id="syl-s20">
   <div class="syl-mh"><h4><a href="#s20" data-sec="s20">Module 20 — Emergency &amp; critical situation response</a></h4><span class="est">≈ 25 min</span></div>
   <ul class="syl-t"><li>Remain professional and gather essential information</li><li>Determine nature and urgency</li><li>Document the issue</li><li>Follow the client&#x27;s emergency procedures</li><li>Contact the appropriate designated person</li><li>Escalate immediately when required</li><li>Maintain communication until transferred or resolved</li><li>Document actions taken</li></ul>
-  <div class="syl-l"><b>Lessons</b> What counts as an emergency · The response sequence · Eight situations, worked through · Knowledge check</div>
+  <div class="syl-l"><b>Lessons</b> <span class="ls">What counts as an emergency</span> <span class="sep">·</span> <span class="ls">The response sequence</span> <span class="sep">·</span> <span class="ls">Eight situations, worked through</span> <span class="sep">·</span> <span class="ls">Knowledge check</span></div>
 </div>
 <div class="syl-m" id="syl-s21">
   <div class="syl-mh"><h4><a href="#s21" data-sec="s21">Module 21 — Escalating to senior client personnel</a></h4><span class="est">≈ 15 min</span></div>
   <ul class="syl-t"><li>What issue occurred</li><li>Who should be contacted</li><li>How they should be contacted</li><li>When escalation is required</li><li>What information must be provided</li><li>The client-specific escalation matrix</li></ul>
-  <div class="syl-l"><b>Lessons</b> The escalation matrix · What to hand over · Knowledge check</div>
+  <div class="syl-l"><b>Lessons</b> <span class="ls">The escalation matrix</span> <span class="sep">·</span> <span class="ls">What to hand over</span> <span class="sep">·</span> <span class="ls">Knowledge check</span></div>
 </div>
 <div class="syl-ph"><span class="pn">Phase 9</span><h3>Affiliate coordination</h3></div>
 <div class="syl-m" id="syl-s22">
   <div class="syl-mh"><h4><a href="#s22" data-sec="s22">Module 22 — Affiliate operations</a></h4><span class="est">≈ 25 min</span></div>
   <ul class="syl-t"><li>Understanding affiliate relationships</li><li>Identifying affiliate-operated rides</li><li>Reviewing affiliate assignments</li><li>Communicating reservation information</li><li>Confirming ride acceptance</li><li>Communicating changes</li><li>Updating passenger/flight information</li><li>Confirming driver information</li><li>Following up on outstanding information</li><li>Documenting affiliate communications</li><li>Escalating affiliate service issues</li></ul>
-  <div class="syl-l"><b>Lessons</b> Online bookings and farm-ins: Accept / Reject · Farm-out: sending a trip to an affiliate · Coordinating with the affiliate after you send it · Knowledge check</div>
+  <div class="syl-l"><b>Lessons</b> <span class="ls">Online bookings and farm-ins: Accept / Reject</span> <span class="sep">·</span> <span class="ls">Farm-out: sending a trip to an affiliate</span> <span class="sep">·</span> <span class="ls">Coordinating with the affiliate after you send it</span> <span class="sep">·</span> <span class="ls">Knowledge check</span></div>
 </div>
 <div class="syl-ph"><span class="pn">Phase 10</span><h3>Ride settlement &amp; accounting support</h3></div>
 <div class="syl-m" id="syl-s23">
   <div class="syl-mh"><h4><a href="#s23" data-sec="s23">Module 23 — Completed ride review</a></h4><span class="est">≈ 18 min</span></div>
   <ul class="syl-t"><li>Correct ride status</li><li>Driver</li><li>Vehicle</li><li>Actual service information</li><li>Wait time</li><li>Additional stops</li><li>Tolls</li><li>Parking</li><li>Additional charges</li><li>Gratuity</li><li>Applicable fees</li><li>Notes and documentation</li></ul>
-  <div class="syl-l"><b>Lessons</b> Incidents, done and the close-out · The twelve checks on a completed ride · Knowledge check</div>
+  <div class="syl-l"><b>Lessons</b> <span class="ls">Incidents, done and the close-out</span> <span class="sep">·</span> <span class="ls">The twelve checks on a completed ride</span> <span class="sep">·</span> <span class="ls">Knowledge check</span></div>
 </div>
 <div class="syl-m" id="syl-s24">
   <div class="syl-mh"><h4><a href="#s24" data-sec="s24">Module 24 — Simple ride close / settle rides</a></h4><span class="est">≈ 20 min</span></div>
   <ul class="syl-t"><li>Identifying completed rides ready for review</li><li>Reviewing ride details</li><li>Reviewing driver-reported information</li><li>Reviewing tolls and parking</li><li>Reviewing wait time</li><li>Reviewing additional charges</li><li>Identifying missing information</li><li>Identifying discrepancies</li><li>Following client settlement procedures</li><li>Settling straightforward rides</li><li>Escalating exceptions</li></ul>
-  <div class="syl-l"><b>Lessons</b> What settling actually does · The settlement pass · What you settle, and what you escalate · Knowledge check</div>
+  <div class="syl-l"><b>Lessons</b> <span class="ls">What settling actually does</span> <span class="sep">·</span> <span class="ls">The settlement pass</span> <span class="sep">·</span> <span class="ls">What you settle, and what you escalate</span> <span class="sep">·</span> <span class="ls">Knowledge check</span></div>
 </div>
 <div class="syl-m" id="syl-s25">
   <div class="syl-mh"><h4><a href="#s25" data-sec="s25">Module 25 — Accounting support</a></h4><span class="est">≈ 15 min</span></div>
   <ul class="syl-t"><li>Ride settlement</li><li>Ride closeout</li><li>Reviewing completed rides</li><li>Identifying missing charges</li><li>Reviewing supporting documentation</li><li>Reviewing billing requirements</li><li>Identifying payment issues</li><li>Preparing rides for billing</li><li>Researching routine accounting questions</li><li>Documenting accounting exceptions</li><li>Escalating discrepancies</li></ul>
-  <div class="syl-l"><b>Lessons</b> Preparing rides for billing · Routine accounting questions you can answer · Knowledge check</div>
+  <div class="syl-l"><b>Lessons</b> <span class="ls">Preparing rides for billing</span> <span class="sep">·</span> <span class="ls">Routine accounting questions you can answer</span> <span class="sep">·</span> <span class="ls">Knowledge check</span></div>
 </div>
 <div class="syl-ph"><span class="pn">Phase 11</span><h3>Shift handoff &amp; operational continuity</h3></div>
 <div class="syl-m" id="syl-s26">
   <div class="syl-mh"><h4><a href="#s26" data-sec="s26">Module 26 — Handoff from the previous agent</a></h4><span class="est">≈ 18 min</span></div>
   <ul class="syl-t"><li>Outstanding customer requests</li><li>Pending reservation changes</li><li>Unconfirmed reservations</li><li>Pending quotes</li><li>Groups &amp; event requests requiring follow-up</li><li>Drivers requiring monitoring</li><li>Driver wake-up calls</li><li>Late or potentially late rides</li><li>Passenger/driver connection issues</li><li>Affiliate follow-ups</li><li>Outstanding settlement issues</li><li>Customer complaints</li><li>Pending escalations</li><li>Emergency situations</li><li>Important emails awaiting response</li></ul>
-  <div class="syl-l"><b>Lessons</b> Starting a shift: reading the handoff · The handoff record · Ending a shift: writing the handoff · Knowledge check</div>
+  <div class="syl-l"><b>Lessons</b> <span class="ls">Starting a shift: reading the handoff</span> <span class="sep">·</span> <span class="ls">The handoff record</span> <span class="sep">·</span> <span class="ls">Ending a shift: writing the handoff</span> <span class="sep">·</span> <span class="ls">Knowledge check</span></div>
 </div>
 <div class="syl-ph"><span class="pn">Phase 12</span><h3>Client-specific training</h3></div>
 <div class="syl-m" id="syl-s27">
   <div class="syl-mh"><h4><a href="#s27" data-sec="s27">Module 27 — Client configuration, policies &amp; SOPs</a></h4><span class="est">≈ 45 min</span></div>
   <ul class="syl-t"><li>Company structure</li><li>Services</li><li>Service areas</li><li>Fleet</li><li>Vehicle types</li><li>Rates</li><li>Customer service standards</li><li>Phone procedures</li><li>Email procedures</li><li>Reservation procedures</li><li>Quote procedures</li><li>Groups &amp; events procedures</li><li>Cancellation/no-show policies</li><li>Airport procedures</li><li>Dispatch procedures</li><li>Driver monitoring procedures</li><li>Driver wake-up procedures</li><li>Affiliate procedures</li><li>Emergency procedures</li><li>Accounting procedures</li><li>Ride settlement procedures</li><li>Escalation matrix</li><li>After-hours procedures</li><li>Shift handoff requirements</li></ul>
-  <div class="syl-l"><b>Lessons</b> Company settings and preferences · System users: giving colleagues access · Service types: what the company sells · Vehicle types and the fleet · Rates: how a price is built · Fixed rates and zones · Hourly, per-passenger and distance rates · Promo codes, fees and extras · Reservation preferences that shape the screen · The client SOP pack · Knowledge check</div>
+  <div class="syl-l"><b>Lessons</b> <span class="ls">Company settings and preferences</span> <span class="sep">·</span> <span class="ls">System users: giving colleagues access</span> <span class="sep">·</span> <span class="ls">Service types: what the company sells</span> <span class="sep">·</span> <span class="ls">Vehicle types and the fleet</span> <span class="sep">·</span> <span class="ls">Rates: how a price is built</span> <span class="sep">·</span> <span class="ls">Fixed rates and zones</span> <span class="sep">·</span> <span class="ls">Hourly, per-passenger and distance rates</span> <span class="sep">·</span> <span class="ls">Promo codes, fees and extras</span> <span class="sep">·</span> <span class="ls">Reservation preferences that shape the screen</span> <span class="sep">·</span> <span class="ls">The client SOP pack</span> <span class="sep">·</span> <span class="ls">Knowledge check</span></div>
 </div>
 <div class="syl-ph"><span class="pn">Phase 13</span><h3>End-to-end scenario training</h3></div>
 <div class="syl-m" id="syl-s28">
   <div class="syl-mh"><h4><a href="#s28" data-sec="s28">Module 28 — Real-world operational scenarios</a></h4><span class="est">≈ 40 min</span></div>
   <ul class="syl-t"><li>Answering a new reservation call</li><li>Responding to a reservation email</li><li>Creating a reservation</li><li>Providing and sending a quote</li><li>Groups &amp; event inquiry</li><li>Last-minute reservation</li><li>Last-minute customer change</li><li>Flight delay</li><li>Driver running late</li><li>Passenger cannot locate driver</li><li>Tracking a driver</li><li>Driver wake-up call</li><li>Affiliate coordination</li><li>Taking and routing a message</li><li>Customer complaint</li><li>Emergency/service failure</li><li>Escalation to senior management</li><li>Completed ride review</li><li>Simple ride settlement</li><li>Accounting exception</li><li>Shift handoff</li></ul>
-  <div class="syl-l"><b>Lessons</b> How to work a scenario · Scenarios 1-7: the customer reaches you · Scenarios 8-14: the day goes wrong · Scenarios 15-21: closing the loop · Knowledge check</div>
+  <div class="syl-l"><b>Lessons</b> <span class="ls">How to work a scenario</span> <span class="sep">·</span> <span class="ls">Scenarios 1-7: the customer reaches you</span> <span class="sep">·</span> <span class="ls">Scenarios 8-14: the day goes wrong</span> <span class="sep">·</span> <span class="ls">Scenarios 15-21: closing the loop</span> <span class="sep">·</span> <span class="ls">Knowledge check</span></div>
 </div>
 <div class="syl-ph"><span class="pn">Phase 14</span><h3>Testing &amp; certification</h3></div>
 <div class="syl-m" id="syl-s29">
   <div class="syl-mh"><h4><a href="#s29" data-sec="s29">Testing &amp; certification</a></h4><span class="est">≈ 30 min</span></div>
   <ul class="syl-t"><li>Industry &amp; product knowledge</li><li>LimoAnywhere practical assessment</li><li>Customer communication assessment</li><li>Operational assessment</li><li>Accounting assessment</li><li>Escalation assessment</li><li>Shift handoff assessment</li></ul>
-  <div class="syl-l"><b>Lessons</b> The seven assessments · What a pass looks like · Final knowledge check</div>
+  <div class="syl-l"><b>Lessons</b> <span class="ls">The seven assessments</span> <span class="sep">·</span> <span class="ls">What a pass looks like</span> <span class="sep">·</span> <span class="ls">Final knowledge check</span></div>
 </div>
 <div class="syl-ph"><span class="pn">Phase 15</span><h3>Nesting &amp; production readiness</h3></div>
 <div class="syl-m" id="syl-s30">
   <div class="syl-mh"><h4><a href="#s30" data-sec="s30">Nesting &amp; production readiness</a></h4><span class="est">≈ 15 min</span></div>
   <ul class="syl-t"><li>Shadowing</li><li>Reverse shadowing</li><li>Supervised production</li><li>QA review</li><li>Certification</li><li>Full production</li></ul>
-  <div class="syl-l"><b>Lessons</b> The six steps to full production · What QA is looking at · Knowledge check</div>
+  <div class="syl-l"><b>Lessons</b> <span class="ls">The six steps to full production</span> <span class="sep">·</span> <span class="ls">What QA is looking at</span> <span class="sep">·</span> <span class="ls">Knowledge check</span></div>
 </div>
 </div>
 </section>
